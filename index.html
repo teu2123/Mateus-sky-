@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="description" content="SKY Painel — Uso pessoal">
+<title>SKY — Painel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<!-- HLS.js para player de canais ao vivo -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyCEItt23-DYfbzYODTw2J9MF3l_LdCrWKM",
+  authDomain:        "mateus-sky.firebaseapp.com",
+  projectId:         "mateus-sky",
+  storageBucket:     "mateus-sky.firebasestorage.app",
+  messagingSenderId: "241881261873",
+  appId:             "1:241881261873:web:7d8a82becaad96e9797210"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Expose to global scope so non-module functions can call them
+window._firebaseAuth     = auth;
+window._firebaseSignIn   = signInWithEmailAndPassword;
+window._firebaseSignOut  = signOut;
+
+// Watch auth state — auto-login/logout when Firebase session changes
+onAuthStateChanged(auth, user => {
+  if (user) {
+    // User is signed in
+    window._firebaseUser = user;
+    const display = (user.displayName || user.email.split('@')[0]);
+    const name = display.charAt(0).toUpperCase() + display.slice(1);
+    const $ = id => document.getElementById(id);
+    if ($('user-name'))   $('user-name').textContent   = name;
+    if ($('user-avatar')) $('user-avatar').textContent = name.charAt(0).toUpperCase();
+    // Only navigate to dashboard if we're still on login page
+    if (document.getElementById('page-login')?.classList.contains('active')) {
+      document.getElementById('page-login').classList.remove('active');
+      document.getElementById('page-dashboard').classList.add('active');
+      window._postLoginSetup?.();
+    }
+  } else {
+    window._firebaseUser = null;
+  }
+});
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#E8002A;--red-bright:#FF1744;--red-dark:#A0001E;
+  --black:#060608;--card:#0E0E12;--card2:#13131A;
+  --border:rgba(232,0,42,.22);--border-dim:rgba(255,255,255,.07);
+  --text:#F0E8E8;--muted:#8A7A7A;
+  --nav-h:60px;
+  --focus-ring:0 0 0 3px rgba(232,0,42,.5);
+}
+html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--black);color:var(--text);overflow-x:hidden}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:4px}
+
+/* BG */
+.bg-fixed{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-noise{position:absolute;inset:0;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
+.bg-glow{position:absolute;width:500px;height:500px;border-radius:50%;top:-180px;left:50%;transform:translateX(-50%);background:radial-gradient(circle,rgba(232,0,42,.18),transparent 70%);filter:blur(50px)}
+.bg-lines{position:absolute;inset:0;opacity:.03;background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(232,0,42,1) 40px)}
+
+/* PAGES */
+.page{display:none;min-height:100vh;position:relative;z-index:1}
+.page.active{display:block}
+#page-login.active{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;min-height:100vh}
+
+/* ══ LOGIN ══ */
+.login-wrapper{width:100%;max-width:400px;animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.header{text-align:center;margin-bottom:28px}
+.logo-mark{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,var(--red),var(--red-dark));margin-bottom:14px;box-shadow:0 8px 32px rgba(232,0,42,.4);position:relative;overflow:hidden}
+.logo-mark::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent)}
+.logo-mark svg{position:relative;z-index:1}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:4px;color:#fff;line-height:1;margin-bottom:4px}
+.logo-text span{color:var(--red)}
+.header-sub{font-size:.72rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.card{background:var(--card);border:1px solid var(--border-dim);border-radius:20px;padding:26px 22px;box-shadow:0 24px 64px rgba(0,0,0,.6);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);pointer-events:none}
+.section-label{font-size:.67rem;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:11px;display:flex;align-items:center;gap:6px}
+.section-label::before{content:'';width:3px;height:11px;background:var(--red);border-radius:2px;display:inline-block;flex-shrink:0}
+.role-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.role-opt{position:relative;cursor:pointer}
+.role-opt input{position:absolute;opacity:0;width:0;height:0}
+.role-label{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.03);border:1.5px solid var(--border-dim);border-radius:12px;padding:10px 12px;transition:all .2s;user-select:none}
+.role-name{font-size:.76rem;font-weight:700;color:var(--text);line-height:1.1}
+.role-desc{font-size:.6rem;color:var(--muted);margin-top:2px}
+.role-opt input:checked ~ .role-label{border-color:var(--red);background:rgba(232,0,42,.1)}
+.field{margin-bottom:13px}
+.field-label{display:block;font-size:.72rem;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
+.inp-wrap{position:relative}
+.ico-l{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;transition:color .2s;z-index:1;display:flex;align-items:center}
+.inp-wrap:focus-within .ico-l{color:var(--red)}
+input[type=email],input[type=password],input[type=text],input[type=search]{width:100%;padding:12px 14px 12px 40px;background:rgba(255,255,255,.04);border:1.5px solid var(--border-dim);border-radius:11px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.9rem;outline:none;transition:border-color .22s,background .22s,box-shadow .22s}
+input::placeholder{color:rgba(138,122,122,.5)}
+input:focus{border-color:var(--red);background:rgba(232,0,42,.06);box-shadow:var(--focus-ring)}
+.eye-btn{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:6px;line-height:0;display:flex;align-items:center;border-radius:6px;transition:color .2s}
+.eye-btn:hover{color:var(--red)}
+.extras{display:flex;align-items:center;justify-content:space-between;margin:14px 0 18px;gap:8px;flex-wrap:wrap}
+.chk-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.chk-wrap input{position:absolute;opacity:0;width:0;height:0}
+.chk-box{width:17px;height:17px;border-radius:5px;border:1.5px solid var(--border-dim);background:transparent;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.chk-wrap input:checked ~ .chk-box{background:var(--red);border-color:var(--red)}
+.chk-mark{font-size:.6rem;color:#fff;opacity:0;transition:opacity .15s;line-height:1}
+.chk-wrap input:checked ~ .chk-box .chk-mark{opacity:1}
+.chk-txt{font-size:.76rem;color:var(--muted)}
+.forgot{font-size:.76rem;color:var(--red);text-decoration:none;font-weight:600;border-radius:4px}
+.tfa-note{display:flex;align-items:flex-start;gap:10px;background:rgba(232,0,42,.06);border:1px solid rgba(232,0,42,.18);border-radius:10px;padding:10px 13px;font-size:.73rem;color:var(--muted);margin-bottom:16px;line-height:1.5}
+.tfa-note svg{flex-shrink:0;color:var(--red);margin-top:1px}
+.alert-wrap .alert{display:flex;align-items:flex-start;gap:9px;background:rgba(232,0,42,.1);border:1px solid rgba(232,0,42,.35);border-radius:10px;padding:10px 14px;font-size:.77rem;color:#ff6b80;margin-bottom:14px;animation:shake .4s ease both}
+.alert-wrap[hidden]{display:none}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.btn-login{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--red-bright),var(--red-dark));color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:transform .25s,box-shadow .25s;box-shadow:0 6px 24px rgba(232,0,42,.35);position:relative;overflow:hidden}
+.btn-login:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 36px rgba(232,0,42,.5)}
+.btn-login:disabled{opacity:.65;cursor:not-allowed}
+.spinner{display:none;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sec-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:16px;font-size:.67rem;color:rgba(255,255,255,.18);letter-spacing:.04em}
+.login-stats{display:flex;margin-top:16px;background:rgba(255,255,255,.02);border:1px solid var(--border-dim);border-radius:14px;overflow:hidden}
+.lstat{flex:1;text-align:center;padding:12px 8px;border-right:1px solid var(--border-dim)}
+.lstat:last-child{border-right:none}
+.lstat-n{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#fff;line-height:1;margin-bottom:2px}
+.lstat-n span{color:var(--red)}
+.lstat-l{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+/* ══ API KEY SETUP ══ */
+.setup-box{background:rgba(232,0,42,.07);border:1px solid rgba(232,0,42,.25);border-radius:14px;padding:16px;margin-bottom:20px}
+.setup-box h4{font-family:'Barlow Condensed',sans-serif;font-weight:900;letter-spacing:.06em;font-size:.9rem;color:var(--red);margin-bottom:6px;text-transform:uppercase}
+.setup-box p{font-size:.75rem;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.setup-box a{color:var(--red);font-weight:600}
+.api-inp{width:100%;padding:10px 13px;background:rgba(255,255,255,.04);border:1.5px solid var(--border-dim);border-radius:9px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.82rem;outline:none;transition:border-color .2s}
+.api-inp:focus{border-color:var(--red)}
+.api-inp::placeholder{color:rgba(138,122,122,.4);font-size:.78rem}
+
+/* ══ DASHBOARD ══ */
+#page-dashboard{padding-bottom:72px}
+.topnav{position:sticky;top:0;z-index:100;background:rgba(6,6,8,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-dim);padding:0 16px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:3px;color:#fff}
+.nav-logo span{color:var(--red)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;border:2px solid rgba(232,0,42,.4);flex-shrink:0}
+.user-name{font-size:.78rem;font-weight:600;color:var(--text)}
+.btn-logout{background:rgba(232,0,42,.12);border:1px solid rgba(232,0,42,.25);border-radius:8px;color:var(--red);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;cursor:pointer;transition:background .2s;font-family:'Barlow',sans-serif}
+.btn-logout:hover{background:rgba(232,0,42,.22)}
+.cat-nav{display:flex;overflow-x:auto;padding:0 12px;border-bottom:1px solid var(--border-dim);background:rgba(6,6,8,.7);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.cat-nav::-webkit-scrollbar{display:none}
+.cat-btn{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:14px 14px;font-family:'Barlow Condensed',sans-serif;font-size:.83rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:color .2s,border-color .2s;white-space:nowrap;margin-bottom:-1px}
+.cat-btn[aria-selected="true"]{color:#fff;border-bottom-color:var(--red)}
+.search-bar{padding:14px 16px 8px}
+.search-wrap{position:relative}
+.search-wrap .s-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);display:flex;pointer-events:none}
+.search-inp{width:100%;padding:11px 14px 11px 40px;background:rgba(255,255,255,.04);border:1.5px solid var(--border-dim);border-radius:12px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.88rem;outline:none;transition:border-color .22s,box-shadow .22s}
+.search-inp:focus{border-color:var(--red);box-shadow:var(--focus-ring)}
+.search-inp::placeholder{color:rgba(138,122,122,.4)}
+.content-panel{display:none;padding:0 16px}
+.content-panel[aria-hidden="false"]{display:block}
+
+/* HERO */
+.hero{position:relative;border-radius:18px;overflow:hidden;margin-bottom:22px;height:210px;display:flex;align-items:flex-end;background:var(--card2);border:1px solid var(--border-dim)}
+.hero-img{position:absolute;inset:0;background-size:cover;background-position:center top;transition:opacity .5s}
+.hero-gradient{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,6,8,1) 0%,rgba(6,6,8,.5) 50%,rgba(6,6,8,.1) 100%)}
+.hero-badge{position:absolute;top:14px;left:14px;background:var(--red);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:.68rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:6px;z-index:1}
+.hero-content{position:relative;z-index:1;padding:16px;width:100%}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:1px;color:#fff;line-height:1;margin-bottom:4px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+.hero-meta{font-size:.71rem;color:rgba(240,232,232,.7);margin-bottom:12px}
+.hero-meta span{color:var(--red);font-weight:600}
+.btn-play{display:inline-flex;align-items:center;gap:7px;background:var(--red);color:#fff;border:none;border-radius:9px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.84rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .2s;box-shadow:0 4px 16px rgba(232,0,42,.4)}
+.btn-play:hover{background:var(--red-bright);transform:scale(1.03)}
+
+/* SECTIONS */
+.section{margin-bottom:26px}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.sec-title{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#fff;display:flex;align-items:center;gap:7px}
+.sec-title::before{content:'';width:3px;height:13px;background:var(--red);border-radius:2px;display:inline-block;flex-shrink:0}
+.sec-more{font-size:.72rem;color:var(--red);font-weight:600;cursor:pointer;background:none;border:none;font-family:'Barlow',sans-serif;padding:2px 6px;border-radius:4px}
+.grid-scroll{display:flex;gap:11px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.grid-scroll::-webkit-scrollbar{display:none}
+
+/* ITEM CARD */
+.item-card{flex-shrink:0;width:128px;cursor:pointer;transition:transform .2s;border-radius:12px}
+.item-card:hover{transform:scale(1.04)}
+.item-thumb{width:128px;height:192px;border-radius:12px;background:var(--card2);border:1px solid var(--border-dim);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:7px}
+.item-thumb img{width:100%;height:100%;object-fit:cover;border-radius:12px;display:block}
+.item-thumb .emoji-fallback{font-size:2.8rem}
+.item-overlay{position:absolute;inset:0;background:rgba(6,6,8,.55);opacity:0;transition:opacity .2s;display:flex;align-items:center;justify-content:center;border-radius:12px}
+.item-card:hover .item-overlay{opacity:1}
+.play-ico{width:40px;height:40px;border-radius:50%;background:rgba(232,0,42,.9);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+.item-badge{position:absolute;top:8px;right:8px;font-size:.58rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:5px;pointer-events:none}
+.badge-new,.badge-live{background:var(--red);color:#fff}
+.badge-live{animation:livepulse 1.5s infinite}
+.badge-hd,.badge-4k{background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.2);color:var(--text)}
+@keyframes livepulse{0%,100%{opacity:1}50%{opacity:.55}}
+.item-name{font-size:.77rem;font-weight:600;color:var(--text);line-height:1.2;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-sub{font-size:.66rem;color:var(--muted)}
+
+/* LOADING SKELETON */
+.skeleton{background:linear-gradient(90deg,var(--card2) 25%,rgba(255,255,255,.04) 50%,var(--card2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:12px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* CHANNEL CARD */
+.ch-card{flex-shrink:0;width:155px;cursor:pointer;transition:transform .2s;border-radius:12px}
+.ch-card:hover{transform:scale(1.03)}
+.ch-thumb{width:155px;height:96px;border-radius:12px;background:var(--card2);border:1px solid var(--border-dim);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;margin-bottom:7px;position:relative;overflow:hidden;transition:border-color .2s}
+.ch-card:hover .ch-thumb{border-color:rgba(232,0,42,.4)}
+.ch-num{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--red);letter-spacing:1px;line-height:1}
+.ch-emoji{font-size:1.6rem;line-height:1}
+.ch-name-big{font-size:.68rem;font-weight:700;color:var(--text);text-align:center;padding:0 6px;line-height:1.2}
+.ch-live-dot{position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--red);animation:livepulse 1.5s infinite;box-shadow:0 0 8px rgba(232,0,42,.7)}
+.ch-name{font-size:.75rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-sub{font-size:.64rem;color:var(--muted)}
+
+/* ══ MODAL PLAYER ══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(10px);animation:fadeIn .22s ease;padding:0}
+.modal-overlay[hidden]{display:none}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--card);border:1px solid var(--border-dim);border-radius:20px 20px 0 0;width:100%;max-width:500px;overflow:hidden;position:relative;animation:slideUp2 .3s cubic-bezier(.22,1,.36,1);max-height:92vh;overflow-y:auto}
+@keyframes slideUp2{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);pointer-events:none;z-index:1}
+
+/* VIDEO PLAYER */
+.video-wrap{width:100%;background:#000;position:relative;aspect-ratio:16/9}
+.video-wrap video{width:100%;height:100%;display:block;background:#000}
+.video-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--card2)}
+.vid-emoji{font-size:3.5rem}
+.vid-status{font-size:.8rem;color:var(--muted);text-align:center;padding:0 20px;line-height:1.5}
+.video-controls{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(0,0,0,.6);position:absolute;bottom:0;left:0;right:0;opacity:0;transition:opacity .3s}
+.video-wrap:hover .video-controls{opacity:1}
+.vc-btn{background:none;border:none;color:#fff;cursor:pointer;padding:4px;display:flex;border-radius:6px;transition:color .2s}
+.vc-btn:hover{color:var(--red)}
+.vc-progress{flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px;cursor:pointer;position:relative}
+.vc-fill{height:100%;background:var(--red);border-radius:2px;width:0%;transition:width .5s linear}
+.vc-time{font-size:.68rem;color:rgba(255,255,255,.7);white-space:nowrap}
+
+.modal-info{padding:16px}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:1px;color:#fff;margin-bottom:5px}
+.modal-meta{font-size:.74rem;color:var(--muted);margin-bottom:8px;display:flex;gap:10px;flex-wrap:wrap}
+.modal-meta span{color:var(--red);font-weight:600}
+.modal-overview{font-size:.79rem;color:var(--muted);line-height:1.65;margin-bottom:14px}
+.modal-rating{display:inline-flex;align-items:center;gap:5px;background:rgba(232,0,42,.1);border:1px solid rgba(232,0,42,.2);border-radius:8px;padding:4px 10px;font-size:.75rem;font-weight:700;color:#fff;margin-bottom:14px}
+.modal-actions{display:flex;gap:10px;padding-bottom:8px}
+.btn-watch{flex:1;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--red-bright),var(--red-dark));color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.9rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.btn-watch:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,0,42,.4)}
+.btn-close-modal{padding:13px 16px;border-radius:10px;border:1px solid var(--border-dim);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.84rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:border-color .2s,color .2s}
+.btn-close-modal:hover{border-color:rgba(232,0,42,.3);color:var(--text)}
+.drag-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.15);margin:12px auto 4px;cursor:pointer}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(6,6,8,.96);backdrop-filter:blur(16px);border-top:1px solid var(--border-dim);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 4px;border:none;background:none;cursor:pointer}
+.bnav-btn svg,.bnav-btn span{transition:color .2s}
+.bnav-btn[aria-selected="true"] svg,.bnav-btn[aria-selected="true"] span{color:var(--red)}
+.bnav-btn:not([aria-selected="true"]) svg,.bnav-btn:not([aria-selected="true"]) span{color:var(--muted)}
+.bnav-label{font-size:.59rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:.8rem;color:var(--text);z-index:300;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:calc(100vw - 40px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* API KEY BANNER */
+.api-banner{background:rgba(232,0,42,.08);border:1px solid rgba(232,0,42,.2);border-radius:12px;padding:12px 14px;margin:0 16px 16px;font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:10px;line-height:1.5}
+.api-banner svg{flex-shrink:0;color:var(--red)}
+.api-banner a{color:var(--red);font-weight:600}
+.api-banner[hidden]{display:none}
+
+/* ERROR STATE */
+.error-state{text-align:center;padding:30px 20px;color:var(--muted)}
+.error-state p{font-size:.82rem;line-height:1.6}
+
+@media(min-width:600px){
+  .modal-overlay{align-items:center;padding:20px}
+  .modal-box{border-radius:20px;max-height:85vh}
+  @keyframes slideUp2{from{opacity:0;transform:scale(.93) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-fixed" aria-hidden="true">
+  <div class="bg-noise"></div><div class="bg-lines"></div><div class="bg-glow"></div>
+</div>
+
+<!-- ══════════ LOGIN ══════════ -->
+<main class="page active" id="page-login" aria-label="Login">
+  <div class="login-wrapper">
+    <header class="header">
+      <div class="logo-mark" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="logo-text">S<span>K</span>Y</div>
+      <p class="header-sub">Painel Pessoal</p>
+    </header>
+
+    <div class="card">
+      <!-- API KEY SETUP -->
+      <div class="setup-box" id="setup-box">
+        <h4>🔑 Configure sua chave TMDB</h4>
+        <p>Para carregar capas e dados reais de filmes, insira sua chave gratuita do <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">TMDB</a>. Ela será salva só no seu dispositivo.</p>
+        <input class="api-inp" type="text" id="tmdb-key-input" placeholder="Cole sua API Key aqui (ex: a1b2c3d4e5f6...)" autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="alert-wrap" id="alert-box" hidden>
+        <div class="alert">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="alert-msg"></span>
+        </div>
+      </div>
+
+      <form id="login-form" novalidate onsubmit="handleLogin(event)">
+        <fieldset style="border:none;margin-bottom:20px">
+          <legend class="section-label" style="float:left;width:100%;margin-bottom:11px">Perfil de acesso</legend>
+          <div class="role-tabs" style="clear:both">
+            <label class="role-opt">
+              <input type="radio" name="role" value="super" checked>
+              <div class="role-label"><span style="font-size:1rem" aria-hidden="true">👑</span><div><div class="role-name">Super Admin</div><div class="role-desc">Acesso total</div></div></div>
+            </label>
+            <label class="role-opt">
+              <input type="radio" name="role" value="operator">
+              <div class="role-label"><span style="font-size:1rem" aria-hidden="true">🛠️</span><div><div class="role-name">Operador</div><div class="role-desc">Acesso limitado</div></div></div>
+            </label>
+          </div>
+        </fieldset>
+        <div class="section-label">Credenciais</div>
+        <div class="field">
+          <label class="field-label" for="email">E-mail</label>
+          <div class="inp-wrap">
+            <span class="ico-l" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
+            <input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="username" required inputmode="email">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="password">Senha</label>
+          <div class="inp-wrap">
+            <span class="ico-l" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <input type="password" id="password" name="password" placeholder="••••••••••" autocomplete="current-password" required minlength="6">
+            <button class="eye-btn" type="button" id="eye-btn" onclick="togglePwd()" aria-label="Mostrar senha" aria-pressed="false">
+              <svg id="eye-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="tfa-note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Seus dados ficam salvos apenas neste dispositivo.</span></div>
+        <div class="extras">
+          <label class="chk-wrap"><input type="checkbox" id="remember"><div class="chk-box"><span class="chk-mark">✓</span></div><span class="chk-txt">Manter conectado</span></label>
+          <a href="#" class="forgot" onclick="return false">Esqueci a senha</a>
+        </div>
+        <button class="btn-login" type="submit" id="btn-login">
+          <span id="btn-text">Acessar Painel</span>
+          <div class="spinner" id="spinner"></div>
+        </button>
+      </form>
+      <div class="sec-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Dados salvos localmente · LGPD</div>
+    </div>
+    <div class="login-stats">
+      <div class="lstat"><div class="lstat-n">4K<span>+</span></div><div class="lstat-l">Filmes</div></div>
+      <div class="lstat"><div class="lstat-n">TV<span>+</span></div><div class="lstat-l">Séries</div></div>
+      <div class="lstat"><div class="lstat-n">AO<span>V</span></div><div class="lstat-l">Canais</div></div>
+    </div>
+  </div>
+</main>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div class="page" id="page-dashboard">
+  <header class="topnav">
+    <div class="nav-logo">S<span>K</span>Y</div>
+    <div class="nav-right">
+      <div class="user-avatar" id="user-avatar" aria-hidden="true">A</div>
+      <span class="user-name" id="user-name">Admin</span>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </header>
+
+  <nav aria-label="Categorias">
+    <div class="cat-nav" role="tablist">
+      <button class="cat-btn" role="tab" id="tab-filmes" aria-selected="true" aria-controls="panel-filmes" onclick="switchTab('filmes')">🎬 Filmes</button>
+      <button class="cat-btn" role="tab" id="tab-series" aria-selected="false" aria-controls="panel-series" onclick="switchTab('series')">📺 Séries</button>
+      <button class="cat-btn" role="tab" id="tab-abertos" aria-selected="false" aria-controls="panel-abertos" onclick="switchTab('abertos')">📡 Canais Abertos</button>
+      <button class="cat-btn" role="tab" id="tab-fechados" aria-selected="false" aria-controls="panel-fechados" onclick="switchTab('fechados')">🔒 Canais Fechados</button>
+    </div>
+  </nav>
+
+  <!-- API Key banner (shown if no key) -->
+  <div class="api-banner" id="api-banner" hidden>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span>Sem chave TMDB — exibindo dados de exemplo. <a href="#" onclick="doLogout();return false">Configure sua chave</a> para capas e dados reais.</span>
+  </div>
+
+  <div class="search-bar">
+    <div class="search-wrap">
+      <span class="s-ico" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+      <input class="search-inp" type="search" id="search-inp" placeholder="Buscar filmes, séries, canais..." aria-label="Buscar" autocomplete="off" oninput="doSearch(this.value)">
+    </div>
+  </div>
+
+  <main id="main-content">
+    <!-- FILMES -->
+    <div class="content-panel" id="panel-filmes" role="tabpanel" aria-labelledby="tab-filmes" aria-hidden="false" tabindex="0">
+      <div class="hero" id="hero-filmes">
+        <div class="hero-img" id="hero-filmes-img"></div>
+        <div class="hero-gradient"></div>
+        <span class="hero-badge">Em Destaque</span>
+        <div class="hero-content">
+          <h2 class="hero-title" id="hero-filmes-title">Carregando...</h2>
+          <p class="hero-meta" id="hero-filmes-meta"></p>
+          <button class="btn-play" id="hero-filmes-btn" onclick="openHeroModal('filmes')">▶ Assistir</button>
+        </div>
+      </div>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">Em Cartaz</h3></div><div class="grid-scroll" id="filmes-cartaz" role="list"></div></section>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">Populares</h3></div><div class="grid-scroll" id="filmes-populares" role="list"></div></section>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">Mais Bem Avaliados</h3></div><div class="grid-scroll" id="filmes-top" role="list"></div></section>
+    </div>
+
+    <!-- SERIES -->
+    <div class="content-panel" id="panel-series" role="tabpanel" aria-labelledby="tab-series" aria-hidden="true" tabindex="0">
+      <div class="hero" id="hero-series">
+        <div class="hero-img" id="hero-series-img"></div>
+        <div class="hero-gradient"></div>
+        <span class="hero-badge">Nova Temporada</span>
+        <div class="hero-content">
+          <h2 class="hero-title" id="hero-series-title">Carregando...</h2>
+          <p class="hero-meta" id="hero-series-meta"></p>
+          <button class="btn-play" id="hero-series-btn" onclick="openHeroModal('series')">▶ Assistir</button>
+        </div>
+      </div>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">No Ar Hoje</h3></div><div class="grid-scroll" id="series-hoje" role="list"></div></section>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">Populares</h3></div><div class="grid-scroll" id="series-populares" role="list"></div></section>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">Mais Bem Avaliadas</h3></div><div class="grid-scroll" id="series-top" role="list"></div></section>
+    </div>
+
+    <!-- CANAIS ABERTOS -->
+    <div class="content-panel" id="panel-abertos" role="tabpanel" aria-labelledby="tab-abertos" aria-hidden="true" tabindex="0">
+      <section class="section" style="padding-top:4px">
+        <div class="sec-head"><h3 class="sec-title">Ao Vivo Agora</h3><span style="font-size:.7rem;color:var(--red);font-weight:700">● AO VIVO</span></div>
+        <div class="grid-scroll" id="canais-abertos" role="list"></div>
+      </section>
+    </div>
+
+    <!-- CANAIS FECHADOS -->
+    <div class="content-panel" id="panel-fechados" role="tabpanel" aria-labelledby="tab-fechados" aria-hidden="true" tabindex="0">
+      <section class="section" style="padding-top:4px">
+        <div class="sec-head"><h3 class="sec-title">Premium</h3><span style="font-size:.7rem;color:var(--red);font-weight:700">● AO VIVO</span></div>
+        <div class="grid-scroll" id="canais-fechados-premium" role="list"></div>
+      </section>
+      <section class="section">
+        <div class="sec-head"><h3 class="sec-title">Esportes</h3></div>
+        <div class="grid-scroll" id="canais-fechados-esp" role="list"></div>
+      </section>
+      <section class="section">
+        <div class="sec-head"><h3 class="sec-title">Notícias</h3></div>
+        <div class="grid-scroll" id="canais-fechados-not" role="list"></div>
+      </section>
+      <section class="section">
+        <div class="sec-head"><h3 class="sec-title">Infantil</h3></div>
+        <div class="grid-scroll" id="canais-fechados-inf" role="list"></div>
+      </section>
+      <div style="padding:8px 0 16px;font-size:.72rem;color:var(--muted);line-height:1.6;text-align:center">
+        ℹ️ Canais fechados requerem assinatura ativa do serviço. Acesse pelo app oficial ou adicione seu próprio link de stream nas configurações.
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navegação">
+    <button class="bnav-btn" role="tab" aria-selected="true" aria-label="Filmes" onclick="switchTab('filmes')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 2 8 7M12 2v5M8 2l-4 5M20 7l-4-5"/></svg>
+      <span class="bnav-label">Filmes</span>
+    </button>
+    <button class="bnav-btn" role="tab" aria-selected="false" aria-label="Séries" onclick="switchTab('series')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <span class="bnav-label">Séries</span>
+    </button>
+    <button class="bnav-btn" role="tab" aria-selected="false" aria-label="Canais Abertos" onclick="switchTab('abertos')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+      <span class="bnav-label">Abertos</span>
+    </button>
+    <button class="bnav-btn" role="tab" aria-selected="false" aria-label="Canais Fechados" onclick="switchTab('fechados')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span class="bnav-label">Fechados</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ══════════ MODAL PLAYER ══════════ -->
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+  <div class="modal-overlay" onclick="handleOverlayClick(event)">
+    <div class="modal-box">
+      <div class="drag-handle" onclick="closeModal()"></div>
+      <div class="video-wrap" id="video-wrap">
+        <video id="video-player" controls playsinline preload="none"></video>
+        <div class="video-placeholder" id="video-placeholder">
+          <div class="vid-emoji" id="modal-emoji" aria-hidden="true">🎬</div>
+          <p class="vid-status" id="vid-status">Clique em "Assistir Agora" para reproduzir</p>
+        </div>
+      </div>
+      <div class="modal-info">
+        <h2 class="modal-title" id="modal-title">Título</h2>
+        <div class="modal-meta" id="modal-meta"></div>
+        <div class="modal-rating" id="modal-rating" hidden>⭐ <span id="modal-score"></span></div>
+        <p class="modal-overview" id="modal-overview"></p>
+        <div class="modal-actions">
+          <button class="btn-watch" onclick="startPlay()">▶ Assistir Agora</button>
+          <button class="btn-close-modal" onclick="closeModal()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════
+   CONFIG
+═══════════════════════════ */
+const TMDB_BASE    = 'https://api.themoviedb.org/3';
+const IMG_BASE     = 'https://image.tmdb.org/t/p/';
+const LANG         = 'pt-BR';
+
+// Canais abertos — streams HLS públicos gratuitos (TV Aberta BR)
+const CANAIS_ABERTOS = [
+  {id:'ca1', title:'TV Brasil',    num:'02', emoji:'🏛️', sub:'Canal público federal',       stream:'https://cdn.livecontent.net.br/tvbrasil/smil:tvbrasil.stream.smil/playlist.m3u8', live:true},
+  {id:'ca2', title:'TV Cultura',   num:'02', emoji:'🎭', sub:'Cultura e entretenimento',     stream:'https://streaming.tvcultura.com.br/hls/tvcultura/tvcultura.m3u8', live:true},
+  {id:'ca3', title:'TV Senado',    num:'08', emoji:'🏛️', sub:'Canal legislativo',            stream:'https://odn.globo.com/TVSenado/_definst_/TVSenado_720p/playlist.m3u8', live:true},
+  {id:'ca4', title:'Canal Rural',  num:'21', emoji:'🌾', sub:'Agronegócio ao vivo',          stream:'', live:true},
+  {id:'ca5', title:'RecordNews',   num:'53', emoji:'📰', sub:'Notícias 24h',                 stream:'', live:true},
+  {id:'ca6', title:'BandNews',     num:'55', emoji:'📡', sub:'Jornalismo ao vivo',           stream:'', live:true},
+  {id:'ca7', title:'Câmara TV',    num:'08', emoji:'⚖️', sub:'Canal legislativo',            stream:'', live:true},
+  {id:'ca8', title:'TV Aparecida', num:'04', emoji:'⛪', sub:'Canal religioso',              stream:'', live:true},
+];
+
+// Canais fechados — estrutura pronta (adicione seus links de stream)
+const CANAIS_FECHADOS = {
+  premium:[
+    {id:'cf1', title:'HBO',         num:'14', emoji:'👑', sub:'Séries e filmes premium',      stream:'', live:true, note:'Requer assinatura Max'},
+    {id:'cf2', title:'Telecine',    num:'18', emoji:'🎬', sub:'Cinema de qualidade',          stream:'', live:true, note:'Requer assinatura'},
+    {id:'cf3', title:'Globoplay',   num:'15', emoji:'🌐', sub:'Conteúdo Globo',               stream:'', live:true, note:'Requer assinatura'},
+    {id:'cf4', title:'Paramount+',  num:'22', emoji:'⛰️', sub:'Séries e filmes',              stream:'', live:true, note:'Requer assinatura'},
+    {id:'cf5', title:'Discovery',   num:'28', emoji:'🔭', sub:'Ciência e natureza',           stream:'', live:true, note:'Requer assinatura'},
+    {id:'cf6', title:'National Geo', num:'30', emoji:'🌍', sub:'Documentários',              stream:'', live:true, note:'Requer assinatura'},
+  ],
+  esportes:[
+    {id:'ce1', title:'SporTV',      num:'36', emoji:'⚽', sub:'Futebol ao vivo',              stream:'', live:true, note:'Requer assinatura Globo'},
+    {id:'ce2', title:'ESPN',        num:'37', emoji:'🏀', sub:'NBA · NFL · UFC',              stream:'', live:true, note:'Requer assinatura'},
+    {id:'ce3', title:'ESPN 2',      num:'38', emoji:'🎾', sub:'Tênis e mais',                 stream:'', live:true, note:'Requer assinatura'},
+    {id:'ce4', title:'Combate',     num:'39', emoji:'🥊', sub:'UFC · Boxe · MMA',             stream:'', live:true, note:'Requer assinatura'},
+    {id:'ce5', title:'BandSports',  num:'41', emoji:'🏆', sub:'Esportes variados',            stream:'', live:true, note:''},
+    {id:'ce6', title:'SporTV 2',    num:'40', emoji:'🏊', sub:'Automobilismo · Olimpíadas',   stream:'', live:true, note:'Requer assinatura Globo'},
+  ],
+  noticias:[
+    {id:'cn1', title:'GloboNews',   num:'50', emoji:'📰', sub:'Notícias 24h',                 stream:'', live:true, note:'Requer assinatura Globo'},
+    {id:'cn2', title:'CNN Brasil',  num:'52', emoji:'🌐', sub:'Jornalismo ao vivo',           stream:'', live:true, note:''},
+    {id:'cn3', title:'Bloomberg',   num:'56', emoji:'📈', sub:'Economia e finanças',          stream:'', live:true, note:''},
+  ],
+  infantil:[
+    {id:'ci1', title:'Cartoon Net.',num:'60', emoji:'🦸', sub:'Ben 10 · Steven Universe',     stream:'', live:false, note:''},
+    {id:'ci2', title:'Nickelodeon', num:'61', emoji:'🧽', sub:'Bob Esponja · Patrulha',       stream:'', live:false, note:''},
+    {id:'ci3', title:'Disney Ch.',  num:'62', emoji:'🐭', sub:'Mickey · Princesas',           stream:'', live:false, note:''},
+    {id:'ci4', title:'Discovery K.',num:'63', emoji:'🦁', sub:'Animais e natureza',           stream:'', live:false, note:''},
+    {id:'ci5', title:'Gloob',       num:'64', emoji:'🎨', sub:'Animações brasileiras',        stream:'', live:false, note:''},
+  ],
+};
+
+/* ═══════════════════════════
+   STATE
+═══════════════════════════ */
+let TMDB_KEY       = '';
+let currentTab     = 'filmes';
+let heroData       = { filmes: null, series: null };
+let currentItem    = null;
+let lastFocused    = null;
+let hlsInstance    = null;
+let catalogLoaded  = { filmes: false, series: false, abertos: false, fechados: false };
+const $ = id => document.getElementById(id);
+
+/* ═══════════════════════════
+   TMDB API
+═══════════════════════════ */
+async function tmdb(endpoint, params = {}) {
+  if (!TMDB_KEY) throw new Error('NO_KEY');
+  const url = new URL(TMDB_BASE + endpoint);
+  url.searchParams.set('api_key', TMDB_KEY);
+  url.searchParams.set('language', LANG);
+  url.searchParams.set('region', 'BR');
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error('TMDB_ERR_' + res.status);
+  return res.json();
+}
+
+function imgUrl(path, size = 'w342') {
+  return path ? IMG_BASE + size + path : '';
+}
+
+/* ═══════════════════════════
+   RENDER HELPERS
+═══════════════════════════ */
+function skeletons(containerId, count = 6, h = 192) {
+  const c = $(containerId);
+  if (!c) return;
+  const f = document.createDocumentFragment();
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'skeleton';
+    d.style.cssText = `flex-shrink:0;width:128px;height:${h}px;border-radius:12px`;
+    f.appendChild(d);
+  }
+  c.innerHTML = '';
+  c.appendChild(f);
+}
+
+function makeMovieCard(item) {
+  const el = document.createElement('article');
+  el.className = 'item-card';
+  el.setAttribute('role', 'listitem');
+  el.setAttribute('tabindex', '0');
+  el.setAttribute('aria-label', item.title || item.name || '');
+  const poster = imgUrl(item.poster_path);
+  const title = item.title || item.name || 'Sem título';
+  const year = (item.release_date || item.first_air_date || '').slice(0,4);
+  const vote = item.vote_average ? item.vote_average.toFixed(1) : '';
+  el.innerHTML = `
+    <div class="item-thumb">
+      ${poster
+        ? `<img src="${poster}" alt="${sanitize(title)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : ''}
+      <div class="emoji-fallback" style="${poster ? 'display:none' : ''}">🎬</div>
+      <div class="item-overlay" aria-hidden="true">
+        <div class="play-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+      </div>
+      ${vote ? `<span class="item-badge badge-hd">⭐${vote}</span>` : ''}
+    </div>
+    <div class="item-name">${sanitize(title)}</div>
+    <div class="item-sub">${sanitize(year)}</div>`;
+  el.addEventListener('click', () => openModal(item));
+  el.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); openModal(item); }});
+  return el;
+}
+
+function makeChannelCard(item) {
+  const el = document.createElement('article');
+  el.className = 'ch-card';
+  el.setAttribute('role', 'listitem');
+  el.setAttribute('tabindex', '0');
+  el.setAttribute('aria-label', `${item.title}${item.live ? ', ao vivo' : ''}`);
+  el.innerHTML = `
+    <div class="ch-thumb">
+      <div class="ch-num" aria-hidden="true">${sanitize(item.num)}</div>
+      <div class="ch-emoji" aria-hidden="true">${item.emoji||'📺'}</div>
+      <div class="ch-name-big" aria-hidden="true">${sanitize(item.title)}</div>
+      ${item.live ? '<div class="ch-live-dot" aria-hidden="true"></div>' : ''}
+    </div>
+    <div class="ch-name">${sanitize(item.title)}</div>
+    <div class="ch-sub">${sanitize(item.sub||'')}</div>`;
+  el.addEventListener('click', () => openModal(item, 'channel'));
+  el.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); openModal(item,'channel'); }});
+  return el;
+}
+
+function appendToGrid(containerId, items, maker) {
+  const c = $(containerId);
+  if (!c) return;
+  const f = document.createDocumentFragment();
+  items.forEach(i => f.appendChild(maker(i)));
+  c.innerHTML = '';
+  c.appendChild(f);
+}
+
+function sanitize(str) {
+  const d = document.createElement('span');
+  d.textContent = String(str || '');
+  return d.innerHTML;
+}
+
+/* ═══════════════════════════
+   LOAD CATALOG
+═══════════════════════════ */
+// Fallback data when no API key
+const FALLBACK_MOVIES = [
+  {id:1,title:'Oppenheimer',poster_path:null,release_date:'2023',vote_average:8.1,overview:'A história do pai da bomba atômica e o Projeto Manhattan.',emoji:'💣'},
+  {id:2,title:'Duna: Parte 2',poster_path:null,release_date:'2024',vote_average:8.3,overview:'Paul Atreides une forças com os Fremen em busca de vingança.',emoji:'🏜️'},
+  {id:3,title:'Alien: Romulus',poster_path:null,release_date:'2024',vote_average:7.3,overview:'Jovens colonizadores se deparam com a criatura mais aterrorizante do universo.',emoji:'👾'},
+  {id:4,title:'Pobres Criaturas',poster_path:null,release_date:'2023',vote_average:7.9,overview:'A história de Bella Baxter, trazida de volta à vida por um cientista excêntrico.',emoji:'🌺'},
+  {id:5,title:'Furiosa',poster_path:null,release_date:'2024',vote_average:7.6,overview:'A origem de Furiosa antes de cruzar o caminho do Immortan Joe.',emoji:'🚗'},
+  {id:6,title:'Wonka',poster_path:null,release_date:'2023',vote_average:7.2,overview:'A origem do mágico Willy Wonka.',emoji:'🍫'},
+];
+const FALLBACK_SERIES = [
+  {id:100,name:'The Last of Us',poster_path:null,first_air_date:'2023',vote_average:8.9,overview:'Joel e Ellie sobrevivem num mundo devastado por uma infecção fúngica.',emoji:'🍄'},
+  {id:101,name:'House of the Dragon',poster_path:null,first_air_date:'2022',vote_average:8.4,overview:'A precuela de Game of Thrones. A história da Casa Targaryen.',emoji:'🐉'},
+  {id:102,name:'Fallout',poster_path:null,first_air_date:'2024',vote_average:8.5,overview:'Moradores de um bunker emergem 200 anos após uma guerra nuclear.',emoji:'☢️'},
+  {id:103,name:'Shogun',poster_path:null,first_air_date:'2024',vote_average:8.6,overview:'Um piloto inglês preso nas guerras de poder dos samurais japoneses.',emoji:'🗡️'},
+  {id:104,name:'The Bear',poster_path:null,first_air_date:'2022',vote_average:8.7,overview:'Carmen Berzatto tenta transformar a lanchonete da família num restaurante premium.',emoji:'🍳'},
+  {id:105,name:'Stranger Things',poster_path:null,first_air_date:'2016',vote_average:8.7,overview:'O grupo de Hawkins enfrenta o maior perigo — Vecna e o Mundo Invertido.',emoji:'🔦'},
+];
+
+async function loadFilmes() {
+  if (catalogLoaded.filmes) return;
+  ['filmes-cartaz','filmes-populares','filmes-top'].forEach(id => skeletons(id));
+  try {
+    if (!TMDB_KEY) throw new Error('NO_KEY');
+    const [cartaz, popular, top] = await Promise.all([
+      tmdb('/movie/now_playing'),
+      tmdb('/movie/popular'),
+      tmdb('/movie/top_rated'),
+    ]);
+    const hero = cartaz.results[0];
+    heroData.filmes = hero;
+    setHero('filmes', hero);
+    appendToGrid('filmes-cartaz',    cartaz.results.slice(0,10),  makeMovieCard);
+    appendToGrid('filmes-populares', popular.results.slice(0,10), makeMovieCard);
+    appendToGrid('filmes-top',       top.results.slice(0,10),     makeMovieCard);
+  } catch {
+    heroData.filmes = FALLBACK_MOVIES[0];
+    setHeroFallback('filmes', FALLBACK_MOVIES[0]);
+    appendToGrid('filmes-cartaz',    FALLBACK_MOVIES, makeMovieCard);
+    appendToGrid('filmes-populares', [...FALLBACK_MOVIES].reverse(), makeMovieCard);
+    appendToGrid('filmes-top',       FALLBACK_MOVIES.slice(0,4),  makeMovieCard);
+  }
+  catalogLoaded.filmes = true;
+}
+
+async function loadSeries() {
+  if (catalogLoaded.series) return;
+  ['series-hoje','series-populares','series-top'].forEach(id => skeletons(id));
+  try {
+    if (!TMDB_KEY) throw new Error('NO_KEY');
+    const [hoje, popular, top] = await Promise.all([
+      tmdb('/tv/airing_today'),
+      tmdb('/tv/popular'),
+      tmdb('/tv/top_rated'),
+    ]);
+    const hero = popular.results[0];
+    heroData.series = hero;
+    setHero('series', hero);
+    appendToGrid('series-hoje',      hoje.results.slice(0,10),    makeMovieCard);
+    appendToGrid('series-populares', popular.results.slice(0,10), makeMovieCard);
+    appendToGrid('series-top',       top.results.slice(0,10),     makeMovieCard);
+  } catch {
+    heroData.series = FALLBACK_SERIES[0];
+    setHeroFallback('series', FALLBACK_SERIES[0]);
+    appendToGrid('series-hoje',      FALLBACK_SERIES, makeMovieCard);
+    appendToGrid('series-populares', [...FALLBACK_SERIES].reverse(), makeMovieCard);
+    appendToGrid('series-top',       FALLBACK_SERIES.slice(0,4),  makeMovieCard);
+  }
+  catalogLoaded.series = true;
+}
+
+function loadCanaisAbertos() {
+  if (catalogLoaded.abertos) return;
+  appendToGrid('canais-abertos', CANAIS_ABERTOS, makeChannelCard);
+  catalogLoaded.abertos = true;
+}
+
+function loadCanaisFechados() {
+  if (catalogLoaded.fechados) return;
+  appendToGrid('canais-fechados-premium', CANAIS_FECHADOS.premium,  makeChannelCard);
+  appendToGrid('canais-fechados-esp',     CANAIS_FECHADOS.esportes, makeChannelCard);
+  appendToGrid('canais-fechados-not',     CANAIS_FECHADOS.noticias, makeChannelCard);
+  appendToGrid('canais-fechados-inf',     CANAIS_FECHADOS.infantil, makeChannelCard);
+  catalogLoaded.fechados = true;
+}
+
+/* ═══════════════════════════
+   HERO
+═══════════════════════════ */
+function setHero(type, item) {
+  const title = item.title || item.name || '';
+  const year  = (item.release_date || item.first_air_date || '').slice(0,4);
+  const vote  = item.vote_average ? '⭐ ' + item.vote_average.toFixed(1) : '';
+  $('hero-'+type+'-title').textContent = title;
+  $('hero-'+type+'-meta').innerHTML = `<span>${year}</span>${vote ? ' · '+vote : ''}`;
+  if (item.backdrop_path) {
+    $('hero-'+type+'-img').style.backgroundImage = `url(${imgUrl(item.backdrop_path,'w780')})`;
+    $('hero-'+type+'-img').style.opacity = '1';
+  }
+}
+function setHeroFallback(type, item) {
+  $('hero-'+type+'-title').textContent = item.title || item.name || '';
+  $('hero-'+type+'-meta').innerHTML = `<span>${(item.release_date||item.first_air_date||'').slice(0,4)}</span>`;
+}
+
+function openHeroModal(type) {
+  if (heroData[type]) openModal(heroData[type]);
+}
+
+/* ═══════════════════════════
+   TABS
+═══════════════════════════ */
+const TABS = ['filmes','series','abertos','fechados'];
+const loaders = { filmes:loadFilmes, series:loadSeries, abertos:loadCanaisAbertos, fechados:loadCanaisFechados };
+
+function switchTab(tab) {
+  if (!TABS.includes(tab)) return;
+  currentTab = tab;
+  TABS.forEach(t => {
+    const panel = $('panel-'+t);
+    if (panel) panel.setAttribute('aria-hidden', t!==tab ? 'true' : 'false');
+    const catBtn = $('tab-'+t);
+    if (catBtn) catBtn.setAttribute('aria-selected', t===tab ? 'true' : 'false');
+  });
+  document.querySelectorAll('.bnav-btn[role="tab"]').forEach(btn => {
+    const match = btn.getAttribute('onclick')?.includes("'"+tab+"'");
+    btn.setAttribute('aria-selected', match ? 'true' : 'false');
+  });
+  $('search-inp').value = '';
+  loaders[tab]?.();
+}
+
+/* ═══════════════════════════
+   SEARCH
+═══════════════════════════ */
+let searchTimer = null;
+async function doSearch(raw) {
+  const q = String(raw).trim();
+  if (!q) return;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(async () => {
+    if (!TMDB_KEY) { showToast('Configure sua chave TMDB para buscar'); return; }
+    try {
+      const data = await tmdb('/search/multi', { query: q });
+      const res = data.results?.filter(r => r.media_type !== 'person');
+      if (!res?.length) { showToast('Nenhum resultado para "'+q.slice(0,30)+'"'); return; }
+      openModal(res[0]);
+    } catch { showToast('Erro na busca. Verifique sua chave TMDB.'); }
+  }, 500);
+}
+
+/* ═══════════════════════════
+   MODAL
+═══════════════════════════ */
+function openModal(item, type='media') {
+  currentItem = { ...item, _type: type };
+  lastFocused = document.activeElement;
+
+  const isChannel = type === 'channel';
+  $('modal-emoji').textContent = item.emoji || (isChannel ? '📺' : '🎬');
+  $('modal-title').textContent = item.title || item.name || item.title || '';
+
+  // Meta
+  const parts = [];
+  if (item.release_date) parts.push(`<span>${item.release_date.slice(0,4)}</span>`);
+  if (item.first_air_date) parts.push(`<span>${item.first_air_date.slice(0,4)}</span>`);
+  if (item.runtime) parts.push(item.runtime + 'min');
+  if (item.num) parts.push('Canal ' + sanitize(item.num));
+  if (item.sub) parts.push(sanitize(item.sub));
+  if (item.note) parts.push('<em>' + sanitize(item.note) + '</em>');
+  $('modal-meta').innerHTML = parts.join(' · ');
+
+  // Rating
+  if (item.vote_average && item.vote_average > 0) {
+    $('modal-score').textContent = item.vote_average.toFixed(1) + ' / 10';
+    $('modal-rating').removeAttribute('hidden');
+  } else {
+    $('modal-rating').setAttribute('hidden','');
+  }
+
+  $('modal-overview').textContent = item.overview || item.desc || 'Conteúdo disponível para reprodução.';
+
+  // Reset player
+  stopPlayer();
+  $('video-placeholder').style.display = 'flex';
+
+  const vid = $('video-player');
+  vid.style.display = 'none';
+
+  if (isChannel && item.stream) {
+    $('vid-status').textContent = 'Clique em "Assistir Agora" para sintonizar o canal ao vivo';
+  } else if (isChannel && !item.stream) {
+    $('vid-status').textContent = item.note || 'Requer assinatura do serviço para assistir ao vivo.';
+  } else {
+    $('vid-status').textContent = 'Clique em "Assistir Agora" para reproduzir';
+  }
+
+  $('modal').removeAttribute('hidden');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.querySelector('.btn-watch')?.focus(), 80);
+}
+
+function closeModal() {
+  stopPlayer();
+  $('modal').setAttribute('hidden','');
+  document.body.style.overflow = '';
+  currentItem = null;
+  lastFocused?.focus();
+}
+
+function handleOverlayClick(e) {
+  if (e.target === e.currentTarget) closeModal();
+}
+
+function stopPlayer() {
+  if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+  const vid = $('video-player');
+  vid.pause();
+  vid.src = '';
+  vid.load();
+}
+
+function startPlay() {
+  if (!currentItem) return;
+  const isChannel = currentItem._type === 'channel';
+
+  if (isChannel) {
+    const stream = currentItem.stream;
+    if (!stream) {
+      showToast('⚠️ ' + (currentItem.note || 'Stream não disponível'));
+      return;
+    }
+    playHLS(stream);
+    return;
+  }
+
+  // Para filmes/séries — abre trailer no YouTube via TMDB
+  if (TMDB_KEY && currentItem.id) {
+    const type = currentItem.title ? 'movie' : 'tv';
+    tmdb(`/${type}/${currentItem.id}/videos`)
+      .then(data => {
+        const trailer = data.results?.find(v => v.site==='YouTube' && (v.type==='Trailer'||v.type==='Teaser'));
+        if (trailer) {
+          window.open('https://www.youtube.com/watch?v=' + trailer.key, '_blank');
+        } else {
+          showToast('Trailer não disponível');
+        }
+      })
+      .catch(() => showToast('Erro ao buscar trailer'));
+  } else {
+    showToast('Configure sua chave TMDB para acessar trailers');
+  }
+}
+
+function playHLS(url) {
+  const vid = $('video-player');
+  $('video-placeholder').style.display = 'none';
+  vid.style.display = 'block';
+
+  stopPlayer();
+
+  if (Hls.isSupported()) {
+    hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
+    hlsInstance.loadSource(url);
+    hlsInstance.attachMedia(vid);
+    hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => vid.play().catch(() => {}));
+    hlsInstance.on(Hls.Events.ERROR, (_, data) => {
+      if (data.fatal) {
+        $('video-placeholder').style.display = 'flex';
+        vid.style.display = 'none';
+        $('vid-status').textContent = 'Erro ao carregar stream. Verifique sua conexão.';
+        showToast('❌ Erro ao carregar canal');
+      }
+    });
+  } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
+    vid.src = url;
+    vid.play().catch(() => {});
+  } else {
+    showToast('Seu navegador não suporta HLS');
+    $('video-placeholder').style.display = 'flex';
+    vid.style.display = 'none';
+  }
+}
+
+/* ═══════════════════════════
+   TOAST
+═══════════════════════════ */
+let toastTimer = null;
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = String(msg).slice(0,80);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ═══════════════════════════
+   AUTH (local, uso pessoal)
+═══════════════════════════ */
+function togglePwd() {
+  const inp = $('password'), btn = $('eye-btn'), ico = $('eye-icon');
+  const showing = inp.type === 'text';
+  inp.type = showing ? 'password' : 'text';
+  btn.setAttribute('aria-pressed', !showing);
+  btn.setAttribute('aria-label', showing ? 'Mostrar senha' : 'Ocultar senha');
+  ico.innerHTML = showing
+    ? '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>'
+    : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-7-10-7a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 7 10 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+}
+
+function showLoginError(msg) {
+  $('alert-msg').textContent = msg;
+  $('alert-box').removeAttribute('hidden');
+  const inner = $('alert-box').querySelector('.alert');
+  if (inner) { inner.style.animation='none'; inner.offsetHeight; inner.style.animation=''; }
+}
+
+function setLoading(on) {
+  $('btn-login').disabled = on;
+  $('btn-text').style.display = on ? 'none' : '';
+  $('spinner').style.display  = on ? 'block' : 'none';
+}
+
+// Called after Firebase confirms login
+window._postLoginSetup = function() {
+  const key = String($('tmdb-key-input')?.value || '').trim();
+  if (key) {
+    TMDB_KEY = key;
+    try { localStorage.setItem('sky_tmdb', key); } catch {}
+  } else {
+    try { TMDB_KEY = localStorage.getItem('sky_tmdb') || ''; } catch {}
+  }
+
+  setLoading(false);
+
+  if (!TMDB_KEY) $('api-banner').removeAttribute('hidden');
+  else           $('api-banner').setAttribute('hidden','');
+
+  loadFilmes();
+  const name = $('user-name').textContent || 'Você';
+  showToast('✓ Bem-vindo, ' + name + '!');
+  document.querySelector('.cat-btn')?.focus();
+};
+
+async function handleLogin(e) {
+  if (e) e.preventDefault();
+  const email = String($('email').value).trim();
+  const pwd   = String($('password').value);
+  $('alert-box').setAttribute('hidden','');
+
+  // Validação de formato
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showLoginError('E-mail inválido.'); $('email').focus(); return;
+  }
+  if (pwd.length < 6) {
+    showLoginError('Senha deve ter ao menos 6 caracteres.'); $('password').focus(); return;
+  }
+
+  // Salvar chave TMDB
+  const key = String($('tmdb-key-input')?.value || '').trim();
+  if (key) { try { localStorage.setItem('sky_tmdb', key); } catch {} }
+
+  setLoading(true);
+
+  // Autenticação real com Firebase
+  if (window._firebaseAuth && window._firebaseSignIn) {
+    try {
+      await window._firebaseSignIn(window._firebaseAuth, email, pwd);
+      // onAuthStateChanged vai cuidar do redirecionamento automaticamente
+    } catch (err) {
+      setLoading(false);
+      const msgs = {
+        'auth/user-not-found':    'Usuário não encontrado.',
+        'auth/wrong-password':    'Senha incorreta.',
+        'auth/invalid-credential':'E-mail ou senha incorretos.',
+        'auth/too-many-requests': 'Muitas tentativas. Aguarde alguns minutos.',
+        'auth/network-request-failed': 'Sem conexão. Verifique sua internet.',
+        'auth/invalid-email':     'E-mail inválido.',
+      };
+      showLoginError(msgs[err.code] || 'Erro ao entrar. Tente novamente.');
+      $('password').value = '';
+      $('password').focus();
+    }
+  } else {
+    // Firebase ainda carregando — fallback local para desenvolvimento
+    setTimeout(() => {
+      setLoading(false);
+      const name = email.split('@')[0];
+      const display = name.charAt(0).toUpperCase() + name.slice(1);
+      $('user-name').textContent   = display;
+      $('user-avatar').textContent = display.charAt(0).toUpperCase();
+      $('page-login').classList.remove('active');
+      $('page-dashboard').classList.add('active');
+      window._postLoginSetup?.();
+    }, 800);
+  }
+}
+
+async function doLogout() {
+  stopPlayer();
+  // Firebase sign out
+  if (window._firebaseAuth && window._firebaseSignOut) {
+    try { await window._firebaseSignOut(window._firebaseAuth); } catch {}
+  }
+  $('page-dashboard').classList.remove('active');
+  $('page-login').classList.add('active');
+  $('email').value = '';
+  $('password').value = '';
+  $('alert-box').setAttribute('hidden','');
+  setLoading(false);
+  catalogLoaded = { filmes:false, series:false, abertos:false, fechados:false };
+  heroData = { filmes:null, series:null };
+  ['filmes-cartaz','filmes-populares','filmes-top',
+   'series-hoje','series-populares','series-top',
+   'canais-abertos','canais-fechados-premium',
+   'canais-fechados-esp','canais-fechados-not','canais-fechados-inf']
+    .forEach(id => { const el=$(id); if(el) el.innerHTML=''; });
+  $('email').focus();
+}
+
+/* ═══════════════════════════
+   INIT
+═══════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('modal').hasAttribute('hidden')) closeModal();
+});
+
+// Auto-restore TMDB key
+(function init() {
+  try {
+    const tmdbKey = localStorage.getItem('sky_tmdb');
+    if (tmdbKey) {
+      TMDB_KEY = tmdbKey;
+      const inp = $('tmdb-key-input');
+      if (inp) inp.value = tmdbKey;
+    }
+  } catch {}
+})();
+</script>
+</body>
+</html>
