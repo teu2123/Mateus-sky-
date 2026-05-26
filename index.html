@@ -1553,7 +1553,7 @@ function removePlaylist(idx) {
 function setStatus(id, msg, ok) {
   const el = $(id);
   if (!el) return;
-  el.textContent = msg;
+  el.textContent = msg; // clears all children including old buttons
   el.className   = 'set-status ' + (ok ? 'ok' : 'err');
 }
 
@@ -1566,7 +1566,23 @@ async function importFromURL() {
   setStatus('url-status','⏳ Tentando carregar...', true);
 
   const text = await fetchWithProxies(url, 'url-status');
-  if (!text) return; // error already set inside fetchWithProxies
+  if (!text) {
+    // Adiciona botão de download direto no celular
+    const el = $('url-status');
+    if (el) {
+      const br = document.createElement('br');
+      const btn = document.createElement('a');
+      btn.href = url;
+      btn.target = '_blank';
+      btn.rel = 'noopener noreferrer';
+      btn.textContent = '📥 Baixar lista no navegador';
+      btn.title = 'Abre a URL para baixar o arquivo e importar manualmente';
+      btn.style.cssText = 'display:inline-block;margin-top:10px;padding:9px 16px;background:var(--red);color:#fff;border-radius:9px;font-size:.78rem;font-weight:700;text-decoration:none;letter-spacing:.04em';
+      el.appendChild(br);
+      el.appendChild(btn);
+    }
+    return;
+  }
 
   try {
     let channels = [], type = 'M3U';
@@ -1599,6 +1615,17 @@ const PROXIES = [
 ];
 
 async function fetchWithProxies(url, statusId) {
+  // 1. Tentativa direta (funciona se o servidor tem CORS aberto)
+  setStatus(statusId, '⏳ Tentando conexão direta...', true);
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (res.ok) {
+      const text = await res.text();
+      if (text && text.length > 10) return text;
+    }
+  } catch (e) { /* CORS ou timeout — tenta proxies */ }
+
+  // 2. Proxies em sequência
   for (let i = 0; i < PROXIES.length; i++) {
     const proxyUrl = PROXIES[i](url);
     const label = `Proxy ${i+1}/${PROXIES.length}`;
@@ -1608,13 +1635,11 @@ async function fetchWithProxies(url, statusId) {
       if (res.ok) {
         const text = await res.text();
         if (text && text.length > 10) return text;
-        // Empty response — try next
       }
-    } catch (e) {
-      // Timeout or network error — try next proxy
-    }
+    } catch (e) { /* timeout ou bloqueio — próximo */ }
   }
-  // All proxies failed
+
+  // 3. Tudo falhou — mensagem + botão de download
   setStatus(statusId,
     '❌ Todos os proxies falharam. O servidor bloqueia acesso externo.\n' +
     '💡 Dica: Baixe o arquivo .m3u no seu celular e use "📂 Importar Arquivo" abaixo.',
@@ -1626,15 +1651,29 @@ async function fetchWithProxies(url, statusId) {
 async function testURL() {
   const url = String($('m3u-url-inp').value).trim();
   if (!url) { setStatus('url-status','⚠️ Cole uma URL primeiro.',false); return; }
-  setStatus('url-status','⏳ Testando com múltiplos proxies...', true);
+  setStatus('url-status','⏳ Testando com conexão direta e proxies...', true);
   const text = await fetchWithProxies(url, 'url-status');
-  if (text) {
-    const lines = text.split('\n').length;
-    const isM3U = text.includes('#EXTINF') || text.includes('#EXTM3U');
-    setStatus('url-status',
-      `✅ URL acessível! ${lines} linhas · ${isM3U ? 'Formato M3U detectado ✓' : 'Formato desconhecido'}`,
-      true);
+  if (!text) {
+    // Adiciona botão de download quando teste falha
+    const el = $('url-status');
+    if (el) {
+      const br = document.createElement('br');
+      const btn = document.createElement('a');
+      btn.href = url;
+      btn.target = '_blank';
+      btn.rel = 'noopener noreferrer';
+      btn.textContent = '📥 Baixar lista no navegador';
+      btn.style.cssText = 'display:inline-block;margin-top:10px;padding:9px 16px;background:var(--red);color:#fff;border-radius:9px;font-size:.78rem;font-weight:700;text-decoration:none;letter-spacing:.04em';
+      el.appendChild(br);
+      el.appendChild(btn);
+    }
+    return;
   }
+  const lines = text.split('\n').length;
+  const isM3U = text.includes('#EXTINF') || text.includes('#EXTM3U');
+  setStatus('url-status',
+    `✅ URL acessível! ${lines} linhas · ${isM3U ? 'Formato M3U detectado ✓' : 'Formato desconhecido'}`,
+    true);
 }
 
 /* ── Import from pasted text ── */
