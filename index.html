@@ -706,12 +706,12 @@ const LANG         = 'pt-BR';
 const CANAIS_ABERTOS = [
   {id:'ca1', title:'TV Brasil',    num:'02', emoji:'🏛️', sub:'Canal público federal',       stream:'https://cdn.livecontent.net.br/tvbrasil/smil:tvbrasil.stream.smil/playlist.m3u8', live:true},
   {id:'ca2', title:'TV Cultura',   num:'02', emoji:'🎭', sub:'Cultura e entretenimento',     stream:'https://streaming.tvcultura.com.br/hls/tvcultura/tvcultura.m3u8', live:true},
-  {id:'ca3', title:'TV Senado',    num:'08', emoji:'🏛️', sub:'Canal legislativo',            stream:'https://odn.globo.com/TVSenado/_definst_/TVSenado_720p/playlist.m3u8', live:true},
-  {id:'ca4', title:'Canal Rural',  num:'21', emoji:'🌾', sub:'Agronegócio ao vivo',          stream:'', live:true},
-  {id:'ca5', title:'RecordNews',   num:'53', emoji:'📰', sub:'Notícias 24h',                 stream:'', live:true},
-  {id:'ca6', title:'BandNews',     num:'55', emoji:'📡', sub:'Jornalismo ao vivo',           stream:'', live:true},
-  {id:'ca7', title:'Câmara TV',    num:'08', emoji:'⚖️', sub:'Canal legislativo',            stream:'', live:true},
-  {id:'ca8', title:'TV Aparecida', num:'04', emoji:'⛪', sub:'Canal religioso',              stream:'', live:true},
+  {id:'ca3', title:'TV Senado',    num:'08', emoji:'🏛️', sub:'Canal legislativo',            stream:'https://stream.senado.gov.br/live/smil:tvsenado.smil/playlist.m3u8', live:true},
+  {id:'ca4', title:'Canal Rural',  num:'21', emoji:'🌾', sub:'Agronegócio ao vivo',          stream:'https://conteudo.tvcanrural.com.br/live/sao-paulo/playlist.m3u8', live:true},
+  {id:'ca5', title:'RecordNews',   num:'53', emoji:'📰', sub:'Notícias 24h',                 stream:'https://ott-cdncma.akamaized.net/recordnews/recordnews/playlist.m3u8', live:true},
+  {id:'ca6', title:'BandNews',     num:'55', emoji:'📡', sub:'Jornalismo ao vivo',           stream:'https://e6e3c2e6d7354a70b4ec-2f23a75ac5d9aeae37d8dc12ba4b2b33.ssl.cf3.rackcdn.com/band-news/master.m3u8', live:true},
+  {id:'ca7', title:'Câmara TV',    num:'08', emoji:'⚖️', sub:'Canal legislativo',            stream:'https://stream.camara.leg.br/live/smil:camaraatv.smil/playlist.m3u8', live:true},
+  {id:'ca8', title:'TV Aparecida', num:'04', emoji:'⛪', sub:'Canal religioso',              stream:'https://5d5a2b3edbfef.streamlock.net/live/tvAparecida/playlist.m3u8', live:true},
 ];
 
 // Canais fechados — estrutura pronta (adicione seus links de stream)
@@ -833,7 +833,7 @@ function makeChannelCard(item) {
       <div class="ch-num" aria-hidden="true">${sanitize(item.num)}</div>
       <div class="ch-emoji" aria-hidden="true">${item.emoji||'📺'}</div>
       <div class="ch-name-big" aria-hidden="true">${sanitize(item.title)}</div>
-      ${item.live ? '<div class="ch-live-dot" aria-hidden="true"></div>' : ''}
+      ${item.live && item.stream ? '<div class="ch-live-dot" aria-hidden="true"></div>' : ''}
     </div>
     <div class="ch-name">${sanitize(item.title)}</div>
     <div class="ch-sub">${sanitize(item.sub||'')}</div>`;
@@ -1074,11 +1074,12 @@ function handleOverlayClick(e) {
 }
 
 function stopPlayer() {
-  if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+  if (hlsInstance) { try { hlsInstance.destroy(); } catch {} hlsInstance = null; }
   const vid = $('video-player');
-  vid.pause();
-  vid.src = '';
-  vid.load();
+  try { vid.pause(); vid.src = ''; vid.load(); } catch {}
+  // Reset vid-status to default text
+  const st = $('vid-status');
+  if (st) st.textContent = '';
 }
 
 function startPlay() {
@@ -1120,27 +1121,68 @@ function playHLS(url) {
 
   stopPlayer();
 
-  if (Hls.isSupported()) {
-    hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
-    hlsInstance.loadSource(url);
-    hlsInstance.attachMedia(vid);
-    hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => vid.play().catch(() => {}));
-    hlsInstance.on(Hls.Events.ERROR, (_, data) => {
-      if (data.fatal) {
-        $('video-placeholder').style.display = 'flex';
-        vid.style.display = 'none';
-        $('vid-status').textContent = 'Erro ao carregar stream. Verifique sua conexão.';
-        showToast('❌ Erro ao carregar canal');
-      }
-    });
-  } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
-    vid.src = url;
-    vid.play().catch(() => {});
-  } else {
-    showToast('Seu navegador não suporta HLS');
-    $('video-placeholder').style.display = 'flex';
-    vid.style.display = 'none';
+  let proxyTried = false;
+
+  function attemptLoad(src) {
+    if (hlsInstance) { try { hlsInstance.destroy(); } catch {} hlsInstance = null; }
+
+    if (Hls.isSupported()) {
+      hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true, fragLoadingTimeOut: 15000, manifestLoadingTimeOut: 10000 });
+      hlsInstance.loadSource(src);
+      hlsInstance.attachMedia(vid);
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => vid.play().catch(() => {}));
+      hlsInstance.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal) {
+          if (!proxyTried) {
+            proxyTried = true;
+            const proxied = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+            showToast('⚠️ Tentando via proxy...');
+            attemptLoad(proxied);
+          } else {
+            showStreamError(url);
+          }
+        }
+      });
+    } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
+      // Safari native HLS
+      vid.src = src;
+      vid.play().catch(() => {
+        if (!proxyTried) {
+          proxyTried = true;
+          vid.src = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+          vid.play().catch(() => showStreamError(url));
+        } else {
+          showStreamError(url);
+        }
+      });
+    } else {
+      showStreamError(url);
+    }
   }
+
+  attemptLoad(url);
+}
+
+function showStreamError(url) {
+  if (hlsInstance) { try { hlsInstance.destroy(); } catch {} hlsInstance = null; }
+  const vid = $('video-player');
+  try { vid.pause(); vid.src = ''; vid.load(); } catch {}
+  $('video-placeholder').style.display = 'flex';
+  vid.style.display = 'none';
+  const st = $('vid-status');
+  st.textContent = '';
+  const msg = document.createElement('span');
+  msg.innerHTML = '❌ Não foi possível carregar o canal.<br><small style="color:rgba(138,122,122,.8);font-size:.7rem">O canal pode estar offline ou bloquear acesso externo.</small>';
+  const ext = document.createElement('a');
+  ext.href = url;
+  ext.target = '_blank';
+  ext.rel = 'noopener noreferrer';
+  ext.textContent = '🔗 Tentar no player externo';
+  ext.style.cssText = 'display:inline-block;margin-top:10px;padding:8px 16px;background:var(--red);color:#fff;border-radius:8px;font-size:.78rem;font-weight:700;text-decoration:none;letter-spacing:.04em';
+  st.appendChild(msg);
+  st.appendChild(document.createElement('br'));
+  st.appendChild(ext);
+  showToast('❌ Erro ao carregar canal');
 }
 
 /* ═══════════════════════════
@@ -1552,7 +1594,7 @@ async function importFromURL() {
 const PROXIES = [
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://proxy.cors.sh/${url}`,
+  url => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`,
   url => `https://thingproxy.freeboard.io/fetch/${url}`,
 ];
 
@@ -1562,7 +1604,7 @@ async function fetchWithProxies(url, statusId) {
     const label = `Proxy ${i+1}/${PROXIES.length}`;
     setStatus(statusId, `⏳ Tentando ${label}...`, true);
     try {
-      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
       if (res.ok) {
         const text = await res.text();
         if (text && text.length > 10) return text;
@@ -1729,6 +1771,10 @@ function resetAll() {
   TMDB_KEY = '';
   importedChannels = [];
   catalogLoaded = { filmes:false, series:false, abertos:false, fechados:false };
+  // Clear channel grids so fresh data loads on next tab visit
+  ['canais-abertos','canais-fechados-premium',
+   'canais-fechados-esp','canais-fechados-not','canais-fechados-inf']
+    .forEach(id => { const el=$(id); if(el) el.innerHTML=''; });
   renderPlaylists();
   updateStats();
   showToast('✅ Dados apagados com sucesso');
