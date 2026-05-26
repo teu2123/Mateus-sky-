@@ -311,9 +311,16 @@ input:focus{border-color:var(--red);background:rgba(232,0,42,.06);box-shadow:var
 .btn-set-secondary{padding:11px 14px;border-radius:10px;border:1px solid var(--border-dim);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:border-color .2s,color .2s}
 .btn-set-secondary:hover{border-color:rgba(232,0,42,.3);color:var(--text)}
 
-.set-status{margin-top:10px;font-size:.75rem;line-height:1.5;padding:9px 12px;border-radius:8px;display:none}
+.set-status{margin-top:10px;font-size:.75rem;line-height:1.6;padding:9px 12px;border-radius:8px;display:none;white-space:pre-line;word-break:break-word}
 .set-status.ok{display:block;background:rgba(0,201,107,.08);border:1px solid rgba(0,201,107,.25);color:#00C96B}
 .set-status.err{display:block;background:rgba(232,0,42,.08);border:1px solid rgba(232,0,42,.3);color:#ff6b80}
+
+/* File upload */
+.file-upload-area{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:2px dashed rgba(232,0,42,.3);border-radius:12px;padding:22px 16px;cursor:pointer;transition:border-color .2s,background .2s;text-align:center;background:rgba(255,255,255,.02)}
+.file-upload-area:hover,.file-upload-area:active{border-color:var(--red);background:rgba(232,0,42,.06)}
+.file-upload-ico{font-size:2rem;line-height:1}
+.file-upload-txt{font-size:.84rem;font-weight:600;color:var(--text)}
+.file-upload-sub{font-size:.68rem;color:var(--muted)}
 
 .playlist-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
 .playlist-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid var(--border-dim);border-radius:10px;padding:10px 13px;gap:10px}
@@ -535,7 +542,7 @@ input:focus{border-color:var(--red);background:rgba(232,0,42,.06);box-shadow:var
         <!-- IMPORTAR URL M3U -->
         <div class="set-card">
           <div class="set-card-title">🔗 Importar via URL</div>
-          <div class="set-card-desc">Cole o link direto da sua lista M3U, M3U8 ou JSON. O app carrega e atualiza automaticamente.</div>
+          <div class="set-card-desc">Cole o link direto da sua lista M3U, M3U8 ou JSON. O app tenta múltiplos proxies automaticamente.</div>
           <div class="format-tags">
             <span class="ftag">.m3u</span>
             <span class="ftag">.m3u8</span>
@@ -552,6 +559,28 @@ input:focus{border-color:var(--red);background:rgba(232,0,42,.06);box-shadow:var
             <button class="btn-set-secondary" onclick="testURL()">🔍 Testar</button>
           </div>
           <div class="set-status" id="url-status"></div>
+        </div>
+
+        <!-- IMPORTAR ARQUIVO DO CELULAR -->
+        <div class="set-card">
+          <div class="set-card-title">📂 Importar Arquivo</div>
+          <div class="set-card-desc">Baixe o arquivo <strong style="color:var(--text)">.m3u</strong> no seu celular e importe diretamente. Funciona mesmo quando a URL bloqueia acesso externo.</div>
+          <div class="format-tags">
+            <span class="ftag">.m3u</span>
+            <span class="ftag">.m3u8</span>
+            <span class="ftag">.txt</span>
+            <span class="ftag">.json</span>
+          </div>
+          <label class="file-upload-area" id="file-upload-area" for="file-inp">
+            <div class="file-upload-ico">📁</div>
+            <div class="file-upload-txt">Toque para selecionar arquivo</div>
+            <div class="file-upload-sub">M3U · M3U8 · TXT · JSON</div>
+            <input type="file" id="file-inp" accept=".m3u,.m3u8,.txt,.json,text/plain,application/json" style="display:none" onchange="importFromFile(this)">
+          </label>
+          <div class="field" style="margin-top:10px;margin-bottom:0">
+            <input class="set-inp" type="text" id="file-name-inp" placeholder="Nome da lista (ex: Minha Lista)" autocomplete="off">
+          </div>
+          <div class="set-status" id="file-status"></div>
         </div>
 
         <!-- COLAR CONTEÚDO M3U -->
@@ -1489,16 +1518,15 @@ function setStatus(id, msg, ok) {
 /* ── Import from URL ── */
 async function importFromURL() {
   const url  = String($('m3u-url-inp').value).trim();
-  const name = String($('m3u-url-name').value).trim() || url.split('/').pop() || 'Lista URL';
+  const name = String($('m3u-url-name').value).trim() || url.split('/').pop().split('?')[0] || 'Lista URL';
   if (!url) { setStatus('url-status','⚠️ Cole uma URL válida.',false); return; }
   if (!url.startsWith('http')) { setStatus('url-status','⚠️ A URL deve começar com http:// ou https://',false); return; }
-  setStatus('url-status','⏳ Carregando...', true);
+  setStatus('url-status','⏳ Tentando carregar...', true);
+
+  const text = await fetchWithProxies(url, 'url-status');
+  if (!text) return; // error already set inside fetchWithProxies
+
   try {
-    // Use a CORS proxy for cross-origin M3U files
-    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
-    const res  = await fetch(proxyUrl);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
     let channels = [], type = 'M3U';
     if (text.trim().startsWith('[') || text.trim().startsWith('{')) {
       channels = parseJSON(text); type = 'JSON';
@@ -1506,36 +1534,65 @@ async function importFromURL() {
       channels = parseM3U(text);
     }
     if (!channels.length) throw new Error('Nenhum canal encontrado na lista');
-    // Save
     const lists = getPlaylists();
     lists.push({ name, type, content: text, count: channels.length, url, ts: Date.now() });
     savePlaylists(lists);
     applyImportedChannels(channels);
     renderPlaylists();
     setStatus('url-status', `✅ ${channels.length} canais importados com sucesso!`, true);
-    $('m3u-url-inp').value   = '';
-    $('m3u-url-name').value  = '';
+    $('m3u-url-inp').value  = '';
+    $('m3u-url-name').value = '';
     showToast('✅ ' + channels.length + ' canais importados!');
   } catch (err) {
-    setStatus('url-status', '❌ Erro: ' + (err.message || 'Não foi possível carregar a URL.'), false);
+    setStatus('url-status', '❌ ' + (err.message || 'Erro ao processar lista.'), false);
   }
+}
+
+/* ── Multi-proxy fetch (tenta vários proxies em sequência) ── */
+const PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://proxy.cors.sh/${url}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+];
+
+async function fetchWithProxies(url, statusId) {
+  for (let i = 0; i < PROXIES.length; i++) {
+    const proxyUrl = PROXIES[i](url);
+    const label = `Proxy ${i+1}/${PROXIES.length}`;
+    setStatus(statusId, `⏳ Tentando ${label}...`, true);
+    try {
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.length > 10) return text;
+        // Empty response — try next
+      }
+    } catch (e) {
+      // Timeout or network error — try next proxy
+    }
+  }
+  // All proxies failed
+  setStatus(statusId,
+    '❌ Todos os proxies falharam. O servidor bloqueia acesso externo.\n' +
+    '💡 Dica: Baixe o arquivo .m3u no seu celular e use "📂 Importar Arquivo" abaixo.',
+    false);
+  return null;
 }
 
 /* ── Test URL ── */
 async function testURL() {
   const url = String($('m3u-url-inp').value).trim();
   if (!url) { setStatus('url-status','⚠️ Cole uma URL primeiro.',false); return; }
-  setStatus('url-status','⏳ Testando conexão...', true);
-  try {
-    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
-    const res = await fetch(proxyUrl, { method:'HEAD' });
-    if (res.ok) {
-      const ct = res.headers.get('content-type') || '';
-      setStatus('url-status', `✅ URL acessível! Tipo: ${ct || 'desconhecido'}`, true);
-    } else {
-      setStatus('url-status', `⚠️ URL retornou código ${res.status}`, false);
-    }
-  } catch { setStatus('url-status','❌ URL inacessível. Verifique o link.',false); }
+  setStatus('url-status','⏳ Testando com múltiplos proxies...', true);
+  const text = await fetchWithProxies(url, 'url-status');
+  if (text) {
+    const lines = text.split('\n').length;
+    const isM3U = text.includes('#EXTINF') || text.includes('#EXTM3U');
+    setStatus('url-status',
+      `✅ URL acessível! ${lines} linhas · ${isM3U ? 'Formato M3U detectado ✓' : 'Formato desconhecido'}`,
+      true);
+  }
 }
 
 /* ── Import from pasted text ── */
@@ -1580,6 +1637,65 @@ function clearTextArea() {
   $('m3u-text-inp').value = '';
   $('m3u-text-name').value = '';
   $('text-status').className = 'set-status';
+}
+
+/* ── Import from file (celular) ── */
+function importFromFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const name = String($('file-name-inp').value).trim() || file.name.replace(/\.[^.]+$/, '') || 'Arquivo';
+  setStatus('file-status', '⏳ Lendo arquivo...', true);
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    try {
+      let channels = [], type = 'M3U';
+      if (text.trim().startsWith('[') || text.trim().startsWith('{')) {
+        channels = parseJSON(text); type = 'JSON';
+      } else if (text.includes('#EXTINF') || text.includes('#EXTM3U')) {
+        channels = parseM3U(text); type = 'M3U';
+      } else {
+        // plain URL list
+        channels = text.split('\n')
+          .map(l => l.trim()).filter(l => l.startsWith('http'))
+          .map((url, i) => ({
+            id:'imp_'+Math.random().toString(36).slice(2),
+            title:'Canal '+(i+1), stream:url,
+            group:'Importado', num:String(i+1).padStart(2,'0'),
+            sub:'Importado', emoji:'📡', live:true,
+          }));
+        type = 'URL';
+      }
+      if (!channels.length) throw new Error('Nenhum canal encontrado no arquivo');
+
+      const lists = getPlaylists();
+      lists.push({ name, type, content: text, count: channels.length, ts: Date.now() });
+      savePlaylists(lists);
+      applyImportedChannels(channels);
+      renderPlaylists();
+      setStatus('file-status', `✅ ${channels.length} canais importados de "${file.name}"!`, true);
+      $('file-name-inp').value = '';
+      input.value = '';
+      // Update drop zone
+      const area = $('file-upload-area');
+      if (area) {
+        area.querySelector('.file-upload-ico').textContent = '✅';
+        area.querySelector('.file-upload-txt').textContent = channels.length + ' canais carregados';
+        area.querySelector('.file-upload-sub').textContent = file.name;
+        setTimeout(() => {
+          area.querySelector('.file-upload-ico').textContent = '📁';
+          area.querySelector('.file-upload-txt').textContent = 'Toque para selecionar arquivo';
+          area.querySelector('.file-upload-sub').textContent = 'M3U · M3U8 · TXT · JSON';
+        }, 3000);
+      }
+      showToast('✅ ' + channels.length + ' canais importados!');
+    } catch(err) {
+      setStatus('file-status', '❌ ' + (err.message || 'Erro ao ler arquivo'), false);
+    }
+  };
+  reader.onerror = () => setStatus('file-status','❌ Erro ao ler o arquivo.',false);
+  reader.readAsText(file, 'UTF-8');
 }
 
 /* ── Save TMDB key from settings ── */
