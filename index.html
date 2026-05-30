@@ -159,6 +159,7 @@ input:focus{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.1)}
 .search-inp:focus{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.4)}
 .search-inp::placeholder{color:rgba(255,255,255,.3)}
 .search-results{padding:8px 4% 16px}
+.search-results-label{font-size:.76rem;color:var(--nf-muted);padding:6px 0 10px;font-weight:600}
 
 /* ══ CONTENT PANELS ══ */
 .content-panel{display:none;padding-top:var(--nav-h)}
@@ -438,6 +439,10 @@ input:focus{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.1)}
       <span class="s-ico" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
       <input class="search-inp" type="search" id="search-inp" placeholder="Buscar filmes, séries, canais..." aria-label="Buscar" autocomplete="off" oninput="doSearch(this.value)">
     </div>
+    <div class="search-results" id="search-results" hidden>
+      <p class="search-results-label" id="search-label"></p>
+      <div class="grid-scroll" id="search-grid" role="list"></div>
+    </div>
   </div>
 
   <main id="main-content">
@@ -685,10 +690,10 @@ input:focus{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.1)}
         <!-- Seletor de servidor (filmes e séries) -->
         <div class="provider-row" id="provider-row" hidden>
           <span class="prov-lbl">Servidor</span>
-          <button class="prov-btn active" onclick="setProvider(0)" aria-pressed="true">VidSrc</button>
-          <button class="prov-btn" onclick="setProvider(1)" aria-pressed="false">Embed.su</button>
-          <button class="prov-btn" onclick="setProvider(2)" aria-pressed="false">2Embed</button>
-          <button class="prov-btn" onclick="setProvider(3)" aria-pressed="false">SuperEmbed</button>
+          <button class="prov-btn active" onclick="setProvider(0)" aria-pressed="true">VidSrc.me</button>
+          <button class="prov-btn" onclick="setProvider(1)" aria-pressed="false">VidSrc.to</button>
+          <button class="prov-btn" onclick="setProvider(2)" aria-pressed="false">AutoEmbed</button>
+          <button class="prov-btn" onclick="setProvider(3)" aria-pressed="false">Smashy</button>
         </div>
         <p class="modal-overview" id="modal-overview"></p>
         <div class="modal-actions">
@@ -813,24 +818,24 @@ const $ = id => document.getElementById(id);
 /* Provedores de embed para filmes e séries */
 const EMBED_PROVIDERS = [
   {
-    name: 'VidSrc',
+    name: 'VidSrc.me',
+    movie: id => `https://vidsrc.me/embed/movie?tmdb=${id}`,
+    tv:   (id,s,e) => `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
+  },
+  {
+    name: 'VidSrc.to',
     movie: id => `https://vidsrc.to/embed/movie/${id}`,
     tv:   (id,s,e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`,
   },
   {
-    name: 'Embed.su',
-    movie: id => `https://embed.su/embed/movie/${id}`,
-    tv:   (id,s,e) => `https://embed.su/embed/tv/${id}/${s}/${e}`,
+    name: 'AutoEmbed',
+    movie: id => `https://autoembed.cc/movie/tmdb-${id}`,
+    tv:   (id,s,e) => `https://autoembed.cc/tv/tmdb-${id}-${s}-${e}`,
   },
   {
-    name: '2Embed',
-    movie: id => `https://www.2embed.cc/embed/${id}`,
-    tv:   (id,s,e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`,
-  },
-  {
-    name: 'SuperEmbed',
-    movie: id => `https://multiembed.mov/?video_id=${id}&tmdb=1`,
-    tv:   (id,s,e) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
+    name: 'SmashyStream',
+    movie: id => `https://player.smashy.stream/movie/${id}`,
+    tv:   (id,s,e) => `https://player.smashy.stream/tv/${id}?s=${s}&e=${e}`,
   },
 ];
 
@@ -1087,18 +1092,50 @@ function switchTab(tab) {
    SEARCH
 ═══════════════════════════ */
 let searchTimer = null;
+function toggleSearch() {
+  const bar = $('search-bar-wrap');
+  const isVisible = bar.classList.toggle('visible');
+  if (isVisible) {
+    setTimeout(() => $('search-inp')?.focus(), 80);
+  } else {
+    $('search-inp').value = '';
+    $('search-results').setAttribute('hidden','');
+    $('search-grid').innerHTML = '';
+  }
+}
+
 async function doSearch(raw) {
   const q = String(raw).trim();
-  if (!q) return;
+  const res = $('search-results');
+  const grid = $('search-grid');
+  const lbl  = $('search-label');
+
+  if (!q) { res.setAttribute('hidden',''); grid.innerHTML=''; return; }
+
   clearTimeout(searchTimer);
   searchTimer = setTimeout(async () => {
+    lbl.textContent = '🔍 Buscando…';
+    res.removeAttribute('hidden');
+    grid.innerHTML = '';
+
     try {
       const data = await tmdb('/search/multi', { query: q });
-      const res = data.results?.filter(r => r.media_type !== 'person');
-      if (!res?.length) { showToast('Nenhum resultado para "'+q.slice(0,30)+'"'); return; }
-      openModal(res[0]);
-    } catch { showToast('Erro na busca. Verifique sua chave TMDB.'); }
-  }, 500);
+      const items = (data.results || []).filter(r => r.media_type !== 'person').slice(0, 20);
+
+      if (!items.length) {
+        lbl.textContent = `Nenhum resultado para "${q.slice(0,30)}"`;
+        return;
+      }
+
+      lbl.textContent = `${items.length} resultado${items.length > 1 ? 's' : ''} para "${q.slice(0,25)}"`;
+      items.forEach(item => {
+        const card = makeMovieCard(item);
+        grid.appendChild(card);
+      });
+    } catch(e) {
+      lbl.textContent = '❌ Erro na busca. Verifique sua conexão.';
+    }
+  }, 400);
 }
 
 /* ═══════════════════════════
@@ -1246,11 +1283,42 @@ function playYouTubeLive(channelId) {
   wrap.style.display = 'block';
   if (loading) loading.style.display = 'flex';
 
-  iframe.onload  = () => { if (loading) loading.style.display = 'none'; };
-  iframe.onerror = () => { if (loading) loading.style.display = 'none'; };
+  iframe.onload = () => {
+    if (loading) loading.style.display = 'none';
+  };
 
-  // Embed do YouTube Live pelo canal — autoplay
-  iframe.src = `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&rel=0&modestbranding=1`;
+  // Usa youtube-nocookie.com para menos rastreamento e menos bloqueios de embed
+  iframe.src = `https://www.youtube-nocookie.com/embed/live_stream?channel=${channelId}&autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+
+  // Fallback: se após 8s ainda estiver carregando, oferece abrir no YouTube
+  const fallbackTimer = setTimeout(() => {
+    if (!wrap || wrap.style.display === 'none') return;
+    const st = $('vid-status');
+    if (loading) loading.style.display = 'none';
+    ph.style.display  = 'flex';
+    vid.style.display = 'none';
+    wrap.style.display = 'none';
+    if (st) {
+      st.textContent = '';
+      const msg = document.createElement('span');
+      msg.innerHTML = '⚠️ Este canal restringe exibição externa.<br><small style="font-size:.7rem;color:rgba(255,255,255,.4)">Abra diretamente no YouTube para assistir.</small>';
+      const btn = document.createElement('a');
+      btn.href = `https://www.youtube.com/channel/${channelId}/live`;
+      btn.target = '_blank';
+      btn.rel = 'noopener noreferrer';
+      btn.textContent = '▶ Abrir no YouTube';
+      btn.style.cssText = 'display:inline-block;margin-top:10px;padding:9px 18px;background:#ff0000;color:#fff;border-radius:6px;font-size:.8rem;font-weight:700;text-decoration:none';
+      st.appendChild(msg);
+      st.appendChild(document.createElement('br'));
+      st.appendChild(btn);
+    }
+  }, 8000);
+
+  iframe.onload = () => {
+    clearTimeout(fallbackTimer);
+    if (loading) loading.style.display = 'none';
+  };
+
   showToast('📺 Sintonizando canal...');
 }
 
