@@ -13,7 +13,7 @@
 <script>
 // ─── CREDENCIAIS — altere aqui se quiser ───────────────────────
 const AUTH_EMAIL    = 'mateusjardim2123@gmail.com';
-const AUTH_PASSWORD = 'sky2025';
+const AUTH_PASSWORD = 'mateus2123';
 // ───────────────────────────────────────────────────────────────
 
 (function initAuth() {
@@ -64,184 +64,1908 @@ window._localSignOut = function() {
 </script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 :root{
-  --red:#E8002A;--red-bright:#FF1744;--red-dark:#A0001E;
-  --black:#060608;--card:#0E0E12;--card2:#13131A;
-  --border:rgba(232,0,42,.22);--border-dim:rgba(255,255,255,.07);
-  --text:#F0E8E8;--muted:#8A7A7A;
-  --nav-h:60px;
-  --focus-ring:0 0 0 3px rgba(232,0,42,.5);
+  --nf-red:#E50914;--nf-red-dark:#B20710;
+  --nf-black:#141414;--nf-dark:#000;
+  --nf-card:#1f1f1f;--nf-card2:#2a2a2a;
+  --nf-border:rgba(255,255,255,.1);
+  --nf-text:#fff;--nf-muted:#b3b3b3;--nf-dim:#6d6d6e;
+  --nf-green:#46d369;
+  --nav-h:68px;--bnav-h:60px;
+  --focus-ring:0 0 0 2px rgba(229,9,20,.6);
 }
-html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--black);color:var(--text);overflow-x:hidden}
-:focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:4px}
+html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--nf-black);color:var(--nf-text);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--nf-red);outline-offset:2px;border-radius:3px}
+img{display:block;max-width:100%}
 
-/* BG */
-.bg-fixed{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.bg-noise{position:absolute;inset:0;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
-.bg-glow{position:absolute;width:500px;height:500px;border-radius:50%;top:-180px;left:50%;transform:translateX(-50%);background:radial-gradient(circle,rgba(232,0,42,.18),transparent 70%);filter:blur(50px)}
-.bg-lines{position:absolute;inset:0;opacity:.03;background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(232,0,42,1) 40px)}
-
-/* PAGES */
-.page{display:none;min-height:100vh;position:relative;z-index:1}
+/* ══ PAGES ══ */
+.page{display:none;min-height:100vh}
 .page.active{display:block}
-#page-login.active{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;min-height:100vh}
+#page-login.active{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:linear-gradient(to bottom,rgba(0,0,0,.6) 0%,rgba(0,0,0,.3) 50%,rgba(0,0,0,.7) 100%),url('https://assets.nflxext.com/ffe/siteui/vlv3/b9dc6db2-b69b-4f24-9f2e-c62a7e60a8ec/web/BR-en-20240101-popsignuptwoweeks-perspective_alpha_website_large.jpg') center/cover no-repeat fixed}
 
 /* ══ LOGIN ══ */
-.login-wrapper{width:100%;max-width:400px;animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.login-wrapper{width:100%;max-width:450px;animation:fadeIn .5s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 .header{text-align:center;margin-bottom:28px}
-.logo-mark{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,var(--red),var(--red-dark));margin-bottom:14px;box-shadow:0 8px 32px rgba(232,0,42,.4);position:relative;overflow:hidden}
-.logo-mark::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent)}
-.logo-mark svg{position:relative;z-index:1}
-.logo-text{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:4px;color:#fff;line-height:1;margin-bottom:4px}
-.logo-text span{color:var(--red)}
-.header-sub{font-size:.72rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
-.card{background:var(--card);border:1px solid var(--border-dim);border-radius:20px;padding:26px 22px;box-shadow:0 24px 64px rgba(0,0,0,.6);position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);pointer-events:none}
-.section-label{font-size:.67rem;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:11px;display:flex;align-items:center;gap:6px}
-.section-label::before{content:'';width:3px;height:11px;background:var(--red);border-radius:2px;display:inline-block;flex-shrink:0}
-
-.field{margin-bottom:13px}
-.field-label{display:block;font-size:.72rem;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
+.logo-mark{display:none}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:3.2rem;letter-spacing:4px;color:var(--nf-red);line-height:1;margin-bottom:4px}
+.logo-text span{color:#fff}
+.header-sub{font-size:.78rem;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase}
+.card{background:rgba(0,0,0,.78);border:none;border-radius:6px;padding:44px 40px;position:relative}
+.card::before{display:none}
+.section-label{font-size:.75rem;font-weight:700;color:var(--nf-muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:14px}
+.section-label::before{display:none}
+.field{margin-bottom:16px}
+.field-label{display:block;font-size:.72rem;font-weight:600;color:var(--nf-muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
 .inp-wrap{position:relative}
-.ico-l{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;transition:color .2s;z-index:1;display:flex;align-items:center}
-.inp-wrap:focus-within .ico-l{color:var(--red)}
-input[type=email],input[type=password],input[type=text],input[type=search]{width:100%;padding:12px 14px 12px 40px;background:rgba(255,255,255,.04);border:1.5px solid var(--border-dim);border-radius:11px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.9rem;outline:none;transition:border-color .22s,background .22s,box-shadow .22s}
-input::placeholder{color:rgba(138,122,122,.5)}
-input:focus{border-color:var(--red);background:rgba(232,0,42,.06);box-shadow:var(--focus-ring)}
-.eye-btn{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:6px;line-height:0;display:flex;align-items:center;border-radius:6px;transition:color .2s}
-.eye-btn:hover{color:var(--red)}
-.extras{display:flex;align-items:center;justify-content:space-between;margin:14px 0 18px;gap:8px;flex-wrap:wrap}
+.ico-l{display:none}
+input[type=email],input[type=password],input[type=text],input[type=search]{width:100%;padding:15px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);border-radius:4px;color:#fff;font-family:'Barlow',sans-serif;font-size:1rem;outline:none;transition:border-color .2s,background .2s}
+input::placeholder{color:rgba(255,255,255,.3)}
+input:focus{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.1)}
+.eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;padding:4px;display:flex;align-items:center;border-radius:4px}
+.eye-btn:hover{color:#fff}
+.extras{display:flex;align-items:center;justify-content:space-between;margin:10px 0 22px}
 .chk-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
 .chk-wrap input{position:absolute;opacity:0;width:0;height:0}
-.chk-box{width:17px;height:17px;border-radius:5px;border:1.5px solid var(--border-dim);background:transparent;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
-.chk-wrap input:checked ~ .chk-box{background:var(--red);border-color:var(--red)}
-.chk-mark{font-size:.6rem;color:#fff;opacity:0;transition:opacity .15s;line-height:1}
+.chk-box{width:16px;height:16px;border-radius:3px;border:1.5px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.chk-wrap input:checked ~ .chk-box{background:var(--nf-red);border-color:var(--nf-red)}
+.chk-mark{font-size:.55rem;color:#fff;opacity:0;transition:opacity .15s}
 .chk-wrap input:checked ~ .chk-box .chk-mark{opacity:1}
-.chk-txt{font-size:.76rem;color:var(--muted)}
-.forgot{font-size:.76rem;color:var(--red);text-decoration:none;font-weight:600;border-radius:4px}
-.tfa-note{display:flex;align-items:flex-start;gap:10px;background:rgba(232,0,42,.06);border:1px solid rgba(232,0,42,.18);border-radius:10px;padding:10px 13px;font-size:.73rem;color:var(--muted);margin-bottom:16px;line-height:1.5}
-.tfa-note svg{flex-shrink:0;color:var(--red);margin-top:1px}
-.alert-wrap .alert{display:flex;align-items:flex-start;gap:9px;background:rgba(232,0,42,.1);border:1px solid rgba(232,0,42,.35);border-radius:10px;padding:10px 14px;font-size:.77rem;color:#ff6b80;margin-bottom:14px;animation:shake .4s ease both}
+.chk-txt{font-size:.78rem;color:var(--nf-muted)}
+.forgot{font-size:.78rem;color:var(--nf-muted);text-decoration:none}
+.forgot:hover{text-decoration:underline;color:#fff}
+.tfa-note{display:none}
+.alert-wrap .alert{display:flex;align-items:center;gap:8px;background:rgba(255,140,0,.12);border:1px solid rgba(255,140,0,.35);border-radius:4px;padding:12px 14px;font-size:.8rem;color:#ffaa00;margin-bottom:16px;animation:shake .4s ease both}
 .alert-wrap[hidden]{display:none}
-@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
-.btn-login{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--red-bright),var(--red-dark));color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:transform .25s,box-shadow .25s;box-shadow:0 6px 24px rgba(232,0,42,.35);position:relative;overflow:hidden}
-.btn-login:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 36px rgba(232,0,42,.5)}
-.btn-login:disabled{opacity:.65;cursor:not-allowed}
-.spinner{display:none;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+.btn-login{width:100%;padding:16px;border-radius:4px;border:none;background:var(--nf-red);color:#fff;font-family:'Barlow',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.05em;cursor:pointer;transition:background .2s;position:relative;overflow:hidden}
+.btn-login:hover:not(:disabled){background:var(--nf-red-dark)}
+.btn-login:disabled{opacity:.7;cursor:not-allowed}
+.spinner{display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
 @keyframes spin{to{transform:rotate(360deg)}}
-.sec-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:16px;font-size:.67rem;color:rgba(255,255,255,.18);letter-spacing:.04em}
-.login-stats{display:flex;margin-top:16px;background:rgba(255,255,255,.02);border:1px solid var(--border-dim);border-radius:14px;overflow:hidden}
-.lstat{flex:1;text-align:center;padding:12px 8px;border-right:1px solid var(--border-dim)}
+.sec-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:22px;font-size:.7rem;color:rgba(255,255,255,.25)}
+.login-stats{display:flex;margin-top:18px;background:rgba(255,255,255,.04);border:1px solid var(--nf-border);border-radius:4px;overflow:hidden}
+.lstat{flex:1;text-align:center;padding:14px 8px;border-right:1px solid var(--nf-border)}
 .lstat:last-child{border-right:none}
-.lstat-n{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#fff;line-height:1;margin-bottom:2px}
-.lstat-n span{color:var(--red)}
-.lstat-l{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-
-
+.lstat-n{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#fff;line-height:1;margin-bottom:2px}
+.lstat-n span{color:var(--nf-red)}
+.lstat-l{font-size:.6rem;color:var(--nf-muted);text-transform:uppercase;letter-spacing:.05em}
 
 /* ══ DASHBOARD ══ */
-#page-dashboard{padding-bottom:72px}
-.topnav{position:sticky;top:0;z-index:100;background:rgba(6,6,8,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-dim);padding:0 16px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between}
-.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:3px;color:#fff}
-.nav-logo span{color:var(--red)}
-.nav-right{display:flex;align-items:center;gap:10px}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;border:2px solid rgba(232,0,42,.4);flex-shrink:0}
-.user-name{font-size:.78rem;font-weight:600;color:var(--text)}
-.btn-logout{background:rgba(232,0,42,.12);border:1px solid rgba(232,0,42,.25);border-radius:8px;color:var(--red);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;cursor:pointer;transition:background .2s;font-family:'Barlow',sans-serif}
-.btn-logout:hover{background:rgba(232,0,42,.22)}
-.cat-nav{display:flex;overflow-x:auto;padding:0 12px;border-bottom:1px solid var(--border-dim);background:rgba(6,6,8,.7);-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.cat-nav::-webkit-scrollbar{display:none}
-.cat-btn{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:14px 14px;font-family:'Barlow Condensed',sans-serif;font-size:.83rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:color .2s,border-color .2s;white-space:nowrap;margin-bottom:-1px}
-.cat-btn[aria-selected="true"]{color:#fff;border-bottom-color:var(--red)}
-.search-bar{padding:14px 16px 8px}
+#page-dashboard{padding-bottom:var(--bnav-h);background:var(--nf-black)}
+
+/* ══ TOP NAV — Netflix style ══ */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);padding:0 4%;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.9) 0%,transparent 100%);transition:background .4s}
+.topnav.scrolled{background:rgba(20,20,20,.97)!important}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;color:var(--nf-red);line-height:1}
+.nav-logo span{color:#fff}
+.nav-right{display:flex;align-items:center;gap:14px}
+.nav-search-btn{background:none;border:none;color:#fff;cursor:pointer;padding:5px;display:flex;line-height:0;opacity:.8;transition:opacity .2s}
+.nav-search-btn:hover{opacity:1}
+.nav-avatar{width:32px;height:32px;border-radius:4px;background:var(--nf-red);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;color:#fff;cursor:pointer;flex-shrink:0;text-transform:uppercase}
+.nav-logout{background:none;border:none;color:rgba(255,255,255,.45);font-size:.73rem;font-family:'Barlow',sans-serif;cursor:pointer;padding:5px 8px;border-radius:4px;transition:color .2s}
+.nav-logout:hover{color:#fff}
+
+/* CATEGORY NAV — hidden */
+.cat-nav{display:none}
+
+/* ══ SEARCH BAR ══ */
+.search-bar{padding:calc(var(--nav-h) + 10px) 4% 0;display:none;animation:fadeIn .2s ease}
+.search-bar.visible{display:block}
 .search-wrap{position:relative}
-.search-wrap .s-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);display:flex;pointer-events:none}
-.search-inp{width:100%;padding:11px 14px 11px 40px;background:rgba(255,255,255,.04);border:1.5px solid var(--border-dim);border-radius:12px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.88rem;outline:none;transition:border-color .22s,box-shadow .22s}
-.search-inp:focus{border-color:var(--red);box-shadow:var(--focus-ring)}
-.search-inp::placeholder{color:rgba(138,122,122,.4)}
-.content-panel{display:none;padding:0 16px}
-.content-panel[aria-hidden="false"]{display:block}
+.s-ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--nf-muted);z-index:1;display:flex}
+.search-inp{width:100%;padding:13px 14px 13px 44px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);border-radius:4px;color:#fff;font-size:.9rem;font-family:'Barlow',sans-serif;outline:none}
+.search-inp:focus{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.4)}
+.search-inp::placeholder{color:rgba(255,255,255,.3)}
+.search-results{padding:8px 4% 16px}
 
-/* HERO */
-.hero{position:relative;border-radius:18px;overflow:hidden;margin-bottom:22px;height:210px;display:flex;align-items:flex-end;background:var(--card2);border:1px solid var(--border-dim)}
-.hero-img{position:absolute;inset:0;background-size:cover;background-position:center top;transition:opacity .5s}
-.hero-gradient{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,6,8,1) 0%,rgba(6,6,8,.5) 50%,rgba(6,6,8,.1) 100%)}
-.hero-badge{position:absolute;top:14px;left:14px;background:var(--red);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:.68rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:6px;z-index:1}
-.hero-content{position:relative;z-index:1;padding:16px;width:100%}
-.hero-title{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:1px;color:#fff;line-height:1;margin-bottom:4px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
-.hero-meta{font-size:.71rem;color:rgba(240,232,232,.7);margin-bottom:12px}
-.hero-meta span{color:var(--red);font-weight:600}
-.btn-play{display:inline-flex;align-items:center;gap:7px;background:var(--red);color:#fff;border:none;border-radius:9px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.84rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .2s;box-shadow:0 4px 16px rgba(232,0,42,.4)}
-.btn-play:hover{background:var(--red-bright);transform:scale(1.03)}
+/* ══ CONTENT PANELS ══ */
+.content-panel{display:none;padding-top:var(--nav-h)}
+.content-panel.active{display:block}
 
-/* SECTIONS */
-.section{margin-bottom:26px}
-.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
-.sec-title{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#fff;display:flex;align-items:center;gap:7px}
-.sec-title::before{content:'';width:3px;height:13px;background:var(--red);border-radius:2px;display:inline-block;flex-shrink:0}
-.sec-more{font-size:.72rem;color:var(--red);font-weight:600;cursor:pointer;background:none;border:none;font-family:'Barlow',sans-serif;padding:2px 6px;border-radius:4px}
-.grid-scroll{display:flex;gap:11px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.grid-scroll::-webkit-scrollbar{display:none}
+/* ══ HERO BANNER — Netflix full bleed ══ */
+.hero{position:relative;width:100%;height:72vw;min-height:300px;max-height:500px;overflow:hidden;background:var(--nf-dark)}
+.hero-img{position:absolute;inset:0;background-size:cover;background-position:center top;transition:opacity .7s}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.05) 0%,rgba(0,0,0,.1) 40%,rgba(20,20,20,.85) 80%,rgba(20,20,20,1) 100%);z-index:1}
+.hero::before{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.65) 0%,rgba(0,0,0,.2) 55%,transparent 100%);z-index:1}
+.hero-gradient{display:none}
+.hero-badge{position:absolute;top:18px;left:4%;z-index:3;background:var(--nf-red);color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;padding:3px 9px;border-radius:2px}
+.hero-content{position:absolute;bottom:14px;left:0;right:0;padding:0 4%;z-index:3}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,7vw,2.8rem);letter-spacing:1.5px;color:#fff;line-height:1.05;margin-bottom:8px;text-shadow:0 2px 10px rgba(0,0,0,.7)}
+.hero-meta{font-size:.76rem;color:rgba(255,255,255,.75);margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.hero-meta span{color:var(--nf-green);font-weight:700}
+.hero-btns{display:flex;gap:10px}
+.btn-play{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border-radius:4px;border:none;background:#fff;color:#000;font-family:'Barlow',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;transition:background .2s;letter-spacing:.02em;flex-shrink:0}
+.btn-play:hover{background:rgba(255,255,255,.82)}
+.btn-info{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:4px;border:none;background:rgba(109,109,110,.7);color:#fff;font-family:'Barlow',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:background .2s;letter-spacing:.02em;flex-shrink:0;backdrop-filter:blur(4px)}
+.btn-info:hover{background:rgba(109,109,110,.9)}
 
-/* ITEM CARD */
-.item-card{flex-shrink:0;width:128px;cursor:pointer;transition:transform .2s;border-radius:12px}
-.item-card:hover{transform:scale(1.04)}
-.item-thumb{width:128px;height:192px;border-radius:12px;background:var(--card2);border:1px solid var(--border-dim);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:7px}
-.item-thumb img{width:100%;height:100%;object-fit:cover;border-radius:12px;display:block}
-.item-thumb .emoji-fallback{font-size:2.8rem}
-.item-overlay{position:absolute;inset:0;background:rgba(6,6,8,.55);opacity:0;transition:opacity .2s;display:flex;align-items:center;justify-content:center;border-radius:12px}
-.item-card:hover .item-overlay{opacity:1}
-.play-ico{width:40px;height:40px;border-radius:50%;background:rgba(232,0,42,.9);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.5)}
-.item-badge{position:absolute;top:8px;right:8px;font-size:.58rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:5px;pointer-events:none}
-.badge-new,.badge-live{background:var(--red);color:#fff}
-.badge-live{animation:livepulse 1.5s infinite}
-.badge-hd,.badge-4k{background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.2);color:var(--text)}
-@keyframes livepulse{0%,100%{opacity:1}50%{opacity:.55}}
-.item-name{font-size:.77rem;font-weight:600;color:var(--text);line-height:1.2;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.item-sub{font-size:.66rem;color:var(--muted)}
+/* ══ SECTION ROWS — Netflix ══ */
+.section{padding:0;margin-bottom:10px}
+.sec-head{display:flex;align-items:center;justify-content:space-between;padding:0 4%;margin-bottom:10px;margin-top:14px}
+.sec-title{font-family:'Barlow',sans-serif;font-size:.95rem;font-weight:800;color:#e5e5e5;letter-spacing:.02em;text-transform:uppercase}
+.sec-live-badge{font-size:.6rem;font-weight:800;color:var(--nf-red);letter-spacing:.1em;display:flex;align-items:center;gap:4px}
+.sec-live-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--nf-red);display:inline-block;animation:pulse 1.4s ease infinite}
+.grid-scroll{display:flex;gap:8px;overflow-x:auto;padding:2px 4% 14px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.grid-scroll::-webkit-scrollbar{height:3px}
+.grid-scroll::-webkit-scrollbar-track{background:transparent}
+.grid-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:2px}
 
-/* LOADING SKELETON */
-.skeleton{background:linear-gradient(90deg,var(--card2) 25%,rgba(255,255,255,.04) 50%,var(--card2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:12px}
+/* ══ MOVIE/SERIES CARD — Netflix portrait ══ */
+.item-card{flex-shrink:0;width:120px;cursor:pointer;transition:transform .3s cubic-bezier(.2,0,.2,1)}
+.item-card:hover,.item-card:focus-within{transform:scale(1.1);z-index:10}
+.item-thumb{position:relative;width:120px;height:180px;border-radius:5px;overflow:hidden;background:#222}
+.item-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s}
+.emoji-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;background:#1a1a1a}
+.item-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 55%);display:flex;align-items:flex-end;justify-content:flex-start;padding:8px;opacity:0;transition:opacity .25s}
+.item-card:hover .item-overlay,.item-card:focus-within .item-overlay{opacity:1}
+.play-ico{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+.item-badge{position:absolute;top:6px;right:6px;background:rgba(229,9,20,.85);border-radius:3px;padding:2px 5px;font-size:.58rem;font-weight:800;color:#fff;letter-spacing:.04em}
+.badge-hd{background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.2)}
+.item-name{font-size:.73rem;font-weight:700;color:#e5e5e5;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:120px}
+.item-sub{font-size:.65rem;color:var(--nf-dim);margin-top:2px}
+
+/* ══ CHANNEL CARDS — landscape Netflix style ══ */
+.ch-card{flex-shrink:0;width:140px;cursor:pointer;transition:transform .3s cubic-bezier(.2,0,.2,1)}
+.ch-card:hover,.ch-card:focus-within{transform:scale(1.1)}
+.ch-thumb{width:140px;height:90px;border-radius:5px;background:linear-gradient(135deg,#1c1c1c 0%,#252525 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.07)}
+.ch-thumb::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,255,255,.03) 0%,transparent 70%)}
+.ch-num{position:absolute;top:6px;left:8px;font-size:.58rem;font-weight:800;color:rgba(255,255,255,.25);letter-spacing:.06em}
+.ch-emoji{font-size:2rem;line-height:1}
+.ch-name-big{font-size:.56rem;font-weight:800;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;text-align:center;padding:0 6px}
+.ch-live-dot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--nf-red);box-shadow:0 0 6px var(--nf-red)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.ch-live-dot{animation:pulse 1.6s ease infinite}
+.ch-name{font-size:.73rem;font-weight:700;color:#e5e5e5;margin-top:7px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:140px}
+.ch-sub{font-size:.63rem;color:var(--nf-dim);text-align:center;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:140px}
+
+/* Skeleton */
+.skeleton{flex-shrink:0;border-radius:5px;background:linear-gradient(90deg,#1a1a1a 25%,#252525 50%,#1a1a1a 75%);background-size:200% 100%;animation:shimmer 1.6s infinite}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* CHANNEL CARD */
-.ch-card{flex-shrink:0;width:155px;cursor:pointer;transition:transform .2s;border-radius:12px}
-.ch-card:hover{transform:scale(1.03)}
-.ch-thumb{width:155px;height:96px;border-radius:12px;background:var(--card2);border:1px solid var(--border-dim);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;margin-bottom:7px;position:relative;overflow:hidden;transition:border-color .2s}
-.ch-card:hover .ch-thumb{border-color:rgba(232,0,42,.4)}
-.ch-num{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--red);letter-spacing:1px;line-height:1}
-.ch-emoji{font-size:1.6rem;line-height:1}
-.ch-name-big{font-size:.68rem;font-weight:700;color:var(--text);text-align:center;padding:0 6px;line-height:1.2}
-.ch-live-dot{position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--red);animation:livepulse 1.5s infinite;box-shadow:0 0 8px rgba(232,0,42,.7)}
-.ch-name{font-size:.75rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ch-sub{font-size:.64rem;color:var(--muted)}
+/* ══ MODAL — Netflix bottom sheet ══ */
+#modal{position:fixed;inset:0;z-index:1000;display:block}
+#modal[hidden]{display:none!important}
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(5px);display:flex;align-items:flex-end;justify-content:center}
+.modal-box{width:100%;max-width:600px;background:var(--nf-card);border-radius:12px 12px 0 0;max-height:92vh;overflow-y:auto;animation:slideUp .32s cubic-bezier(.22,1,.36,1) both;overscroll-behavior:contain}
+@keyframes slideUp{from{transform:translateY(100%);opacity:.6}to{transform:translateY(0);opacity:1}}
+.drag-handle{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.18);margin:12px auto 0;cursor:pointer}
 
-/* ══ MODAL PLAYER ══ */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(10px);animation:fadeIn .22s ease;padding:0}
-.modal-overlay[hidden]{display:none}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal-box{background:var(--card);border:1px solid var(--border-dim);border-radius:20px 20px 0 0;width:100%;max-width:500px;overflow:hidden;position:relative;animation:slideUp2 .3s cubic-bezier(.22,1,.36,1);max-height:92vh;overflow-y:auto}
-@keyframes slideUp2{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);pointer-events:none;z-index:1}
-
-/* VIDEO PLAYER */
+/* VIDEO inside modal */
 .video-wrap{width:100%;background:#000;position:relative;aspect-ratio:16/9}
-.video-wrap video{width:100%;height:100%;display:block;background:#000}
-.video-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--card2);z-index:1}
-.vid-emoji{font-size:3.5rem}
-.vid-status{font-size:.8rem;color:var(--muted);text-align:center;padding:0 20px;line-height:1.6}
-.video-controls{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(0,0,0,.6);position:absolute;bottom:0;left:0;right:0;opacity:0;transition:opacity .3s;z-index:3}
+.video-wrap video{width:100%;height:100%;display:block}
+.video-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--nf-dark);z-index:1}
+.vid-emoji{font-size:3rem}
+.vid-status{font-size:.78rem;color:var(--nf-muted);text-align:center;padding:0 22px;line-height:1.7}
+.video-controls{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(0,0,0,.7);position:absolute;bottom:0;left:0;right:0;opacity:0;transition:opacity .3s;z-index:3}
 .video-wrap:hover .video-controls{opacity:1}
-.vc-btn{background:none;border:none;color:#fff;cursor:pointer;padding:4px;display:flex;border-radius:6px;transition:color .2s}
-.vc-btn:hover{color:var(--red)}
-.vc-progress{flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px;cursor:pointer;position:relative}
-.vc-fill{height:100%;background:var(--red);border-radius:2px;width:0%;transition:width .5s linear}
-.vc-time{font-size:.68rem;color:rgba(255,255,255,.7);white-space:nowrap}
-/* EMBED IFRAME */
+.vc-btn{background:none;border:none;color:#fff;cursor:pointer;padding:4px;display:flex;border-radius:4px}
+.vc-progress{flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px;cursor:pointer}
+.vc-fill{height:100%;background:var(--nf-red);border-radius:2px;width:0%}
+.vc-time{font-size:.65rem;color:rgba(255,255,255,.7);white-space:nowrap}
 .embed-wrap{position:absolute;inset:0;display:none;background:#000;z-index:2}
 .embed-wrap iframe{width:100%;height:100%;border:none;display:block}
-.embed-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(6,6,8,.9);font-size:.8rem;color:var(--muted);z-index:1;pointer-events:none}
-/* EPISODE SELECTOR */
-.ep-selector{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border-dim);border-radius:10px}
-.ep-sel-lbl{
+.embed-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(0,0,0,.92);font-size:.8rem;color:var(--nf-muted);z-index:1;pointer-events:none}
+
+/* MODAL INFO */
+.modal-info{padding:18px 18px 20px}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:1.5px;color:#fff;margin-bottom:5px;line-height:1.1}
+.modal-meta{font-size:.73rem;color:var(--nf-muted);margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.modal-meta span{color:var(--nf-green);font-weight:700}
+.modal-rating{display:inline-flex;align-items:center;gap:4px;background:transparent;border:1px solid rgba(255,255,255,.14);border-radius:3px;padding:3px 9px;font-size:.72rem;font-weight:700;color:#fff;margin-bottom:12px}
+.modal-overview{font-size:.8rem;color:var(--nf-muted);line-height:1.65;margin-bottom:16px}
+.modal-actions{display:flex;gap:9px;padding-bottom:4px}
+.btn-watch{flex:1;padding:14px;border-radius:4px;border:none;background:#fff;color:#000;font-family:'Barlow',sans-serif;font-weight:800;font-size:.92rem;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.03em}
+.btn-watch:hover{background:rgba(255,255,255,.82)}
+.btn-close-modal{padding:14px 18px;border-radius:4px;border:none;background:rgba(109,109,110,.65);color:#fff;font-family:'Barlow',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:background .2s;backdrop-filter:blur(4px)}
+.btn-close-modal:hover{background:rgba(109,109,110,.9)}
+
+/* Episode selector */
+.ep-selector{display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap;padding:11px 13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px}
+.ep-sel-lbl{font-size:.67rem;color:var(--nf-muted);font-weight:800;text-transform:uppercase;letter-spacing:.07em;flex-shrink:0}
+.ep-inp{width:58px;padding:7px 8px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);border-radius:4px;color:#fff;font-family:'Barlow',sans-serif;font-size:.9rem;outline:none;text-align:center;transition:border-color .2s;-moz-appearance:textfield}
+.ep-inp::-webkit-inner-spin-button,.ep-inp::-webkit-outer-spin-button{opacity:0}
+.ep-inp:focus{border-color:rgba(255,255,255,.4)}
+.ep-sep{font-size:.7rem;color:var(--nf-dim)}
+
+/* Provider buttons */
+.provider-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.prov-lbl{font-size:.66rem;color:var(--nf-muted);font-weight:800;letter-spacing:.07em;text-transform:uppercase;flex-shrink:0}
+.prov-btn{padding:5px 13px;border-radius:4px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:var(--nf-muted);font-size:.66rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .2s;font-family:'Barlow',sans-serif}
+.prov-btn:hover{border-color:rgba(255,255,255,.4);color:#fff}
+.prov-btn.active{border-color:var(--nf-red);color:#fff;background:var(--nf-red)}
+
+/* ══ BOTTOM NAV — Netflix mobile ══ */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;height:var(--bnav-h);background:rgba(0,0,0,.94);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:stretch;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px;border:none;background:none;cursor:pointer;position:relative;transition:opacity .15s}
+.bnav-btn[aria-selected="true"] svg{stroke:var(--nf-red)!important;filter:drop-shadow(0 0 4px rgba(229,9,20,.4))}
+.bnav-btn[aria-selected="true"] span{color:var(--nf-red)!important}
+.bnav-btn:not([aria-selected="true"]) svg{stroke:#6d6d6e!important}
+.bnav-btn:not([aria-selected="true"]) span{color:#6d6d6e!important}
+.bnav-label{font-size:.56rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--bnav-h) + 12px);left:50%;transform:translateX(-50%) translateY(12px);background:rgba(25,25,25,.97);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:11px 20px;font-size:.78rem;color:#fff;z-index:3000;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.6);max-width:calc(100vw - 40px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ERROR STATE */
+.error-state{text-align:center;padding:30px 20px;color:var(--nf-muted)}
+.error-state p{font-size:.82rem;line-height:1.6}
+
+@media(min-width:600px){
+  .modal-overlay{align-items:center;padding:24px}
+  .modal-box{border-radius:8px;max-height:88vh}
+  .hero{max-height:540px}
+  .item-card{width:140px}.item-thumb{width:140px;height:210px}.item-name{width:140px}
+  .ch-card{width:160px}.ch-thumb{width:160px;height:100px}.ch-name{width:160px}.ch-sub{width:160px}
+}
+
+/* ══ SETTINGS ══ */
+.settings-panel{display:none;padding:18px 4% 28px;animation:fadeIn .3s ease both}
+.settings-panel.active{display:block}
+.settings-header{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:2px;color:#fff;margin-bottom:4px}
+.settings-sub{font-size:.76rem;color:var(--nf-muted);margin-bottom:22px;line-height:1.5}
+.set-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:18px;margin-bottom:14px}
+.set-card::before{display:none}
+.set-card-title{font-weight:800;font-size:.95rem;letter-spacing:.04em;text-transform:uppercase;color:#fff;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.set-card-desc{font-size:.76rem;color:var(--nf-muted);line-height:1.55;margin-bottom:14px}
+.format-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.ftag{font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:3px;border:1px solid rgba(229,9,20,.3);color:var(--nf-red);background:rgba(229,9,20,.06)}
+.set-textarea{width:100%;min-height:110px;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:4px;color:#fff;font-family:'Barlow',sans-serif;font-size:.8rem;outline:none;resize:vertical;line-height:1.5;transition:border-color .2s}
+.set-textarea:focus{border-color:rgba(255,255,255,.3)}
+.set-textarea::placeholder{color:rgba(255,255,255,.18)}
+.set-inp{width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:4px;color:#fff;font-family:'Barlow',sans-serif;font-size:.87rem;outline:none;transition:border-color .2s}
+.set-inp:focus{border-color:rgba(255,255,255,.3)}
+.set-inp::placeholder{color:rgba(255,255,255,.18)}
+.set-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn-set-primary{flex:1;min-width:120px;padding:12px 14px;border-radius:4px;border:none;background:var(--nf-red);color:#fff;font-family:'Barlow',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.btn-set-primary:hover{background:var(--nf-red-dark)}
+.btn-set-secondary{padding:12px 14px;border-radius:4px;border:1px solid rgba(255,255,255,.2);background:rgba(109,109,110,.5);color:#fff;font-family:'Barlow',sans-serif;font-weight:600;font-size:.85rem;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.btn-set-secondary:hover{background:rgba(109,109,110,.8)}
+.set-status{margin-top:10px;font-size:.75rem;line-height:1.65;padding:10px 13px;border-radius:4px;display:none;white-space:pre-line;word-break:break-word}
+.set-status.ok{display:block;background:rgba(70,211,105,.07);border:1px solid rgba(70,211,105,.22);color:var(--nf-green)}
+.set-status.err{display:block;background:rgba(229,9,20,.07);border:1px solid rgba(229,9,20,.22);color:#ff6b80}
+.file-upload-area{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:2px dashed rgba(255,255,255,.14);border-radius:6px;padding:24px 16px;cursor:pointer;transition:border-color .2s,background .2s;text-align:center;background:rgba(255,255,255,.02)}
+.file-upload-area:hover{border-color:rgba(229,9,20,.5);background:rgba(229,9,20,.04)}
+.file-upload-ico{font-size:2.2rem;line-height:1}
+.file-upload-txt{font-size:.85rem;font-weight:700;color:#e5e5e5}
+.file-upload-sub{font-size:.68rem;color:var(--nf-muted)}
+.playlist-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.playlist-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:11px 14px;gap:10px}
+.pl-info{flex:1;min-width:0}
+.pl-name{font-size:.83rem;font-weight:700;color:#e5e5e5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-meta{font-size:.68rem;color:var(--nf-muted);margin-top:2px}
+.pl-del{background:none;border:none;color:rgba(255,255,255,.25);cursor:pointer;padding:4px;border-radius:4px;transition:color .2s;display:flex;flex-shrink:0}
+.pl-del:hover{color:var(--nf-red)}
+.set-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 0 14px}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.stat-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:12px 10px;text-align:center}
+.stat-box-n{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#fff;line-height:1}
+.stat-box-n span{color:var(--nf-red)}
+.stat-box-l{font-size:.62rem;color:var(--nf-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+</style>
+</head>
+<body>
+
+
+
+<!-- ══════════ LOGIN ══════════ -->
+<main class="page active" id="page-login" aria-label="Login">
+  <div class="login-wrapper">
+    <header class="header">
+      <div class="logo-mark" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="logo-text">S<span>K</span>Y</div>
+      <p class="header-sub">Painel Pessoal</p>
+    </header>
+
+
+    <div class="card">
+      <div class="alert-wrap" id="alert-box" hidden>
+        <div class="alert">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="alert-msg"></span>
+        </div>
+      </div>
+
+      <form id="login-form" novalidate onsubmit="handleLogin(event)">
+        <div class="section-label">Credenciais</div>
+        <div class="field">
+          <label class="field-label" for="email">E-mail</label>
+          <div class="inp-wrap">
+            <span class="ico-l" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
+            <input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="username" required inputmode="email">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="password">Senha</label>
+          <div class="inp-wrap">
+            <span class="ico-l" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <input type="password" id="password" name="password" placeholder="••••••••••" autocomplete="current-password" required minlength="6">
+            <button class="eye-btn" type="button" id="eye-btn" onclick="togglePwd()" aria-label="Mostrar senha" aria-pressed="false">
+              <svg id="eye-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="tfa-note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Seus dados ficam salvos apenas neste dispositivo.</span></div>
+        <div class="extras">
+          <label class="chk-wrap"><input type="checkbox" id="remember"><div class="chk-box"><span class="chk-mark">✓</span></div><span class="chk-txt">Manter conectado</span></label>
+          <a href="#" class="forgot" onclick="return false">Esqueci a senha</a>
+        </div>
+        <button class="btn-login" type="submit" id="btn-login">
+          <span id="btn-text">Acessar Painel</span>
+          <div class="spinner" id="spinner"></div>
+        </button>
+      </form>
+      <div class="sec-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Dados salvos localmente · LGPD</div>
+    </div>
+    <div class="login-stats">
+      <div class="lstat"><div class="lstat-n">4K<span>+</span></div><div class="lstat-l">Filmes</div></div>
+      <div class="lstat"><div class="lstat-n">TV<span>+</span></div><div class="lstat-l">Séries</div></div>
+      <div class="lstat"><div class="lstat-n">AO<span>V</span></div><div class="lstat-l">Canais</div></div>
+    </div>
+  </div>
+</main>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div class="page" id="page-dashboard">
+  <nav class="topnav" id="topnav" aria-label="Navegação principal">
+    <div class="nav-logo">S<span>KY</span></div>
+    <div class="nav-right">
+      <button class="nav-search-btn" aria-label="Buscar" onclick="toggleSearch()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <div class="nav-avatar" id="user-avatar" aria-hidden="true">M</div>
+      <span id="user-name" style="display:none"></span>
+      <button class="nav-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </nav>
+
+  <nav aria-label="Categorias" style="display:none">
+    <div class="cat-nav" role="tablist">
+      <button class="cat-btn" role="tab" id="tab-filmes" aria-selected="true" onclick="switchTab('filmes')">Filmes</button>
+      <button class="cat-btn" role="tab" id="tab-series" aria-selected="false" onclick="switchTab('series')">Séries</button>
+      <button class="cat-btn" role="tab" id="tab-abertos" aria-selected="false" onclick="switchTab('abertos')">Abertos</button>
+      <button class="cat-btn" role="tab" id="tab-fechados" aria-selected="false" onclick="switchTab('fechados')">Fechados</button>
+      <button class="cat-btn" role="tab" id="tab-config" aria-selected="false" onclick="switchTab('config')">Config</button>
+    </div>
+  </nav>
+
+  <div class="search-bar" id="search-bar-wrap">
+    <div class="search-wrap">
+      <span class="s-ico" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+      <input class="search-inp" type="search" id="search-inp" placeholder="Buscar filmes, séries, canais..." aria-label="Buscar" autocomplete="off" oninput="doSearch(this.value)">
+    </div>
+  </div>
+
+  <main id="main-content">
+    <!-- FILMES -->
+    <div class="content-panel" id="panel-filmes" role="tabpanel" aria-labelledby="tab-filmes" aria-hidden="false" tabindex="0">
+      <div class="hero" id="hero-filmes">
+        <div class="hero-img" id="hero-filmes-img"></div>
+        <div class="hero-gradient"></div>
+        <span class="hero-badge">Em Destaque</span>
+        <div class="hero-content">
+          <h2 class="hero-title" id="hero-filmes-title">Carregando...</h2>
+          <p class="hero-meta" id="hero-filmes-meta"></p>
+          <div class="hero-btns">
+            <button class="btn-play" id="hero-filmes-btn" onclick="openHeroModal('filmes')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>Assistir
+            </button>
+            <button class="btn-info" onclick="openHeroModal('filmes')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8"/><line x1="12" y1="12" x2="12" y2="16"/></svg>Mais Info
+            </button>
+          </div>
+        </div>
+      </div>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">Em Cartaz</h3></div><div class="grid-scroll" id="filmes-cartaz" role="list"></div></section>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">Populares no Brasil</h3></div><div class="grid-scroll" id="filmes-populares" role="list"></div></section>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">Mais Bem Avaliados</h3></div><div class="grid-scroll" id="filmes-top" role="list"></div></section>
+    </div>
+
+    <!-- SERIES -->
+    <div class="content-panel" id="panel-series" role="tabpanel" aria-labelledby="tab-series" aria-hidden="true" tabindex="0">
+      <div class="hero" id="hero-series">
+        <div class="hero-img" id="hero-series-img"></div>
+        <div class="hero-gradient"></div>
+        <span class="hero-badge">Nova Temporada</span>
+        <div class="hero-content">
+          <h2 class="hero-title" id="hero-series-title">Carregando...</h2>
+          <p class="hero-meta" id="hero-series-meta"></p>
+          <div class="hero-btns">
+            <button class="btn-play" id="hero-series-btn" onclick="openHeroModal('series')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>Assistir
+            </button>
+            <button class="btn-info" onclick="openHeroModal('series')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8"/><line x1="12" y1="12" x2="12" y2="16"/></svg>Mais Info
+            </button>
+          </div>
+        </div>
+      </div>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">No Ar Hoje</h3></div><div class="grid-scroll" id="series-hoje" role="list"></div></section>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">Populares no Brasil</h3></div><div class="grid-scroll" id="series-populares" role="list"></div></section>
+      <section class="section"><div class="sec-head"><h3 class="sec-title">Mais Bem Avaliadas</h3></div><div class="grid-scroll" id="series-top" role="list"></div></section>
+    </div>
+
+    <!-- CANAIS ABERTOS -->
+    <div class="content-panel" id="panel-abertos" role="tabpanel" aria-labelledby="tab-abertos" aria-hidden="true" tabindex="0">
+      <section class="section" style="padding-top:6px">
+        <div class="sec-head"><h3 class="sec-title">Ao Vivo Agora</h3><span class="sec-live-badge">AO VIVO</span></div>
+        <div class="grid-scroll" id="canais-abertos" role="list"></div>
+      </section>
+    </div>
+
+    <!-- CANAIS FECHADOS -->
+    <div class="content-panel" id="panel-fechados" role="tabpanel" aria-labelledby="tab-fechados" aria-hidden="true" tabindex="0">
+      <section class="section" style="padding-top:6px">
+        <div class="sec-head"><h3 class="sec-title">Premium</h3><span class="sec-live-badge">AO VIVO</span></div>
+        <div class="grid-scroll" id="canais-fechados-premium" role="list"></div>
+      </section>
+      <section class="section">
+        <div class="sec-head"><h3 class="sec-title">Esportes</h3><span class="sec-live-badge">AO VIVO</span></div>
+        <div class="grid-scroll" id="canais-fechados-esp" role="list"></div>
+      </section>
+      <section class="section">
+        <div class="sec-head"><h3 class="sec-title">Notícias</h3></div>
+        <div class="grid-scroll" id="canais-fechados-not" role="list"></div>
+      </section>
+      <section class="section">
+        <div class="sec-head"><h3 class="sec-title">Infantil</h3></div>
+        <div class="grid-scroll" id="canais-fechados-inf" role="list"></div>
+      </section>
+    </div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="content-panel" id="panel-config" role="tabpanel" aria-labelledby="tab-config" aria-hidden="true" tabindex="0">
+      <div class="settings-panel active">
+        <h2 class="settings-header">⚙️ Configurações</h2>
+        <p class="settings-sub">Adicione suas listas de canais e configure o app do jeito que quiser.</p>
+
+        <!-- ESTATÍSTICAS -->
+        <div class="set-card">
+          <div class="set-card-title">📊 Resumo</div>
+          <div class="stats-row">
+            <div class="stat-box"><div class="stat-box-n" id="stat-canais">0</div><div class="stat-box-l">Canais</div></div>
+            <div class="stat-box"><div class="stat-box-n" id="stat-listas">0</div><div class="stat-box-l">Listas</div></div>
+            <div class="stat-box"><div class="stat-box-n" id="stat-grupos">0</div><div class="stat-box-l">Grupos</div></div>
+          </div>
+        </div>
+
+        <!-- IMPORTAR URL M3U -->
+        <div class="set-card">
+          <div class="set-card-title">🔗 Importar via URL</div>
+          <div class="set-card-desc">Cole o link direto da sua lista M3U, M3U8 ou JSON. O app tenta múltiplos proxies automaticamente.</div>
+          <div class="format-tags">
+            <span class="ftag">.m3u</span>
+            <span class="ftag">.m3u8</span>
+            <span class="ftag">.json</span>
+            <span class="ftag">http://</span>
+            <span class="ftag">https://</span>
+          </div>
+          <input class="set-inp" type="url" id="m3u-url-inp" placeholder="https://exemplo.com/lista.m3u" inputmode="url" autocomplete="off" spellcheck="false">
+          <div class="field" style="margin-top:8px;margin-bottom:0">
+            <input class="set-inp" type="text" id="m3u-url-name" placeholder="Nome da lista (ex: Canais BR)" autocomplete="off">
+          </div>
+          <div class="set-row">
+            <button class="btn-set-primary" onclick="importFromURL()">⬇ Importar URL</button>
+            <button class="btn-set-secondary" onclick="testURL()">🔍 Testar</button>
+          </div>
+          <div class="set-status" id="url-status"></div>
+        </div>
+
+        <!-- IMPORTAR ARQUIVO DO CELULAR -->
+        <div class="set-card">
+          <div class="set-card-title">📂 Importar Arquivo</div>
+          <div class="set-card-desc">Baixe o arquivo <strong style="color:var(--text)">.m3u</strong> no seu celular e importe diretamente. Funciona mesmo quando a URL bloqueia acesso externo.</div>
+          <div class="format-tags">
+            <span class="ftag">.m3u</span>
+            <span class="ftag">.m3u8</span>
+            <span class="ftag">.txt</span>
+            <span class="ftag">.json</span>
+          </div>
+          <label class="file-upload-area" id="file-upload-area" for="file-inp">
+            <div class="file-upload-ico">📁</div>
+            <div class="file-upload-txt">Toque para selecionar arquivo</div>
+            <div class="file-upload-sub">M3U · M3U8 · TXT · JSON</div>
+            <input type="file" id="file-inp" accept=".m3u,.m3u8,.txt,.json,text/plain,application/json" style="display:none" onchange="importFromFile(this)">
+          </label>
+          <div class="field" style="margin-top:10px;margin-bottom:0">
+            <input class="set-inp" type="text" id="file-name-inp" placeholder="Nome da lista (ex: Minha Lista)" autocomplete="off">
+          </div>
+          <div class="set-status" id="file-status"></div>
+        </div>
+
+        <!-- COLAR CONTEÚDO M3U -->
+        <div class="set-card">
+          <div class="set-card-title">📋 Colar Lista M3U</div>
+          <div class="set-card-desc">Copie e cole o conteúdo completo da sua lista M3U diretamente aqui. Aceita qualquer formato M3U padrão com <code style="color:var(--red);font-size:.72rem">#EXTINF</code>.</div>
+          <div class="format-tags">
+            <span class="ftag">#EXTM3U</span>
+            <span class="ftag">#EXTINF</span>
+            <span class="ftag">tvg-name</span>
+            <span class="ftag">group-title</span>
+            <span class="ftag">tvg-logo</span>
+          </div>
+          <textarea class="set-textarea" id="m3u-text-inp"
+            placeholder="#EXTM3U&#10;#EXTINF:-1 tvg-name=&quot;Globo HD&quot; group-title=&quot;Abertos&quot;,Globo HD&#10;http://seu-servidor.com/stream/globo&#10;#EXTINF:-1 tvg-name=&quot;SBT HD&quot; group-title=&quot;Abertos&quot;,SBT HD&#10;http://seu-servidor.com/stream/sbt"
+            spellcheck="false" autocomplete="off"></textarea>
+          <div class="field" style="margin-top:8px;margin-bottom:0">
+            <input class="set-inp" type="text" id="m3u-text-name" placeholder="Nome da lista (ex: Minha Lista)" autocomplete="off">
+          </div>
+          <div class="set-row">
+            <button class="btn-set-primary" onclick="importFromText()">✅ Salvar Lista</button>
+            <button class="btn-set-secondary" onclick="clearTextArea()">🗑 Limpar</button>
+          </div>
+          <div class="set-status" id="text-status"></div>
+        </div>
+
+        <!-- LISTAS SALVAS -->
+        <div class="set-card" id="saved-lists-card">
+          <div class="set-card-title">📁 Listas Salvas</div>
+          <div class="set-card-desc">Suas listas importadas. Clique em uma lista para recarregar os canais.</div>
+          <div class="set-divider"></div>
+          <div class="playlist-list" id="playlist-list">
+            <div style="text-align:center;padding:16px;font-size:.78rem;color:var(--muted)">Nenhuma lista salva ainda.</div>
+          </div>
+        </div>
+
+
+        <!-- DANGER ZONE -->
+        <div class="set-card" style="border-color:rgba(232,0,42,.3)">
+          <div class="set-card-title" style="color:var(--red)">⚠️ Zona de Perigo</div>
+          <div class="set-card-desc">Apaga todas as listas e configurações salvas no dispositivo. Essa ação não pode ser desfeita.</div>
+          <button class="btn-set-secondary" style="width:100%;border-color:rgba(232,0,42,.3);color:var(--red)" onclick="resetAll()">🗑 Apagar tudo</button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navegação">
+    <button class="bnav-btn" role="tab" aria-selected="true" aria-label="Início" onclick="switchTab('filmes')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="bnav-label">Início</span>
+    </button>
+    <button class="bnav-btn" role="tab" aria-selected="false" aria-label="Séries" onclick="switchTab('series')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <span class="bnav-label">Séries</span>
+    </button>
+    <button class="bnav-btn" role="tab" aria-selected="false" aria-label="Ao Vivo" onclick="switchTab('abertos')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
+      <span class="bnav-label">Ao Vivo</span>
+    </button>
+    <button class="bnav-btn" role="tab" aria-selected="false" aria-label="Canais" onclick="switchTab('fechados')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 2 8 7M12 2v5M8 2l-4 5M20 7l-4-5"/></svg>
+      <span class="bnav-label">Canais</span>
+    </button>
+    <button class="bnav-btn" role="tab" aria-selected="false" aria-label="Minha SKY" onclick="switchTab('config')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="bnav-label">Minha SKY</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ══════════ MODAL PLAYER ══════════ -->
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+  <div class="modal-overlay" onclick="handleOverlayClick(event)">
+    <div class="modal-box">
+      <div class="drag-handle" onclick="closeModal()"></div>
+      <div class="video-wrap" id="video-wrap">
+        <video id="video-player" controls playsinline preload="none"></video>
+        <div class="embed-wrap" id="embed-wrap">
+          <div class="embed-loading" id="embed-loading">
+            <div class="spinner" style="display:block;width:22px;height:22px;border-width:3px"></div>
+            <span>Carregando player...</span>
+          </div>
+          <iframe id="embed-iframe"
+            allowfullscreen
+            allow="fullscreen; autoplay; encrypted-media; picture-in-picture"
+            referrerpolicy="no-referrer">
+          </iframe>
+        </div>
+        <div class="video-placeholder" id="video-placeholder">
+          <div class="vid-emoji" id="modal-emoji" aria-hidden="true">🎬</div>
+          <p class="vid-status" id="vid-status">Clique em "Assistir Agora" para reproduzir</p>
+        </div>
+      </div>
+      <div class="modal-info">
+        <h2 class="modal-title" id="modal-title">Título</h2>
+        <div class="modal-meta" id="modal-meta"></div>
+        <div class="modal-rating" id="modal-rating" hidden>⭐ <span id="modal-score"></span></div>
+        <!-- Seletor de temporada/episódio (só para séries) -->
+        <div class="ep-selector" id="ep-selector" hidden>
+          <span class="ep-sel-lbl">Temporada</span>
+          <input class="ep-inp" type="number" id="ep-season" value="1" min="1" max="50" aria-label="Temporada">
+          <span class="ep-sep">·</span>
+          <span class="ep-sel-lbl">Episódio</span>
+          <input class="ep-inp" type="number" id="ep-episode" value="1" min="1" max="500" aria-label="Episódio">
+        </div>
+        <!-- Seletor de servidor (filmes e séries) -->
+        <div class="provider-row" id="provider-row" hidden>
+          <span class="prov-lbl">Servidor</span>
+          <button class="prov-btn active" onclick="setProvider(0)" aria-pressed="true">VidSrc</button>
+          <button class="prov-btn" onclick="setProvider(1)" aria-pressed="false">Embed.su</button>
+          <button class="prov-btn" onclick="setProvider(2)" aria-pressed="false">2Embed</button>
+          <button class="prov-btn" onclick="setProvider(3)" aria-pressed="false">SuperEmbed</button>
+        </div>
+        <p class="modal-overview" id="modal-overview"></p>
+        <div class="modal-actions">
+          <button class="btn-watch" onclick="startPlay()">▶ Assistir Agora</button>
+          <button class="btn-close-modal" onclick="closeModal()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════
+   CONFIG
+═══════════════════════════ */
+const TMDB_BASE    = 'https://api.themoviedb.org/3';
+const IMG_BASE     = 'https://image.tmdb.org/t/p/';
+const LANG         = 'pt-BR';
+
+// Canais abertos — YouTube Live (sem CORS, funciona de qualquer lugar)
+const CANAIS_ABERTOS = [
+  // ── Brasil ──────────────────────────────────────────────────────
+  {id:'ca01', title:'TV Brasil',      num:'02', emoji:'🏛️', sub:'Canal público federal',         yt:'UCcHJ9q2_E6dUTv5Mxo2j_WA', live:true},
+  {id:'ca02', title:'TV Cultura',     num:'02', emoji:'🎭', sub:'Cultura e entretenimento',       yt:'UCz8QCaB4tn_S5jPBHxQMuoA', live:true},
+  {id:'ca03', title:'TV Senado',      num:'08', emoji:'🏛️', sub:'Canal legislativo',              yt:'UC2_3OdxLLLZGBzBpR0oqTRw', live:true},
+  {id:'ca04', title:'TV Câmara',      num:'09', emoji:'⚖️', sub:'Câmara dos Deputados',          yt:'UCaFetFCrZoCOgBPxJVMgLhA', live:true},
+  {id:'ca05', title:'TV Aparecida',   num:'04', emoji:'⛪', sub:'Canal religioso',                yt:'UCmBiItKoG-JhWXLAHh1xBFg', live:true},
+  {id:'ca06', title:'RecordNews',     num:'53', emoji:'📰', sub:'Notícias 24h',                   yt:'UCzFHJnXlQEi8QANEZfDmobA', live:true},
+  {id:'ca07', title:'BandNews',       num:'55', emoji:'📡', sub:'Jornalismo ao vivo',             yt:'UCni4ojzDFIm4sMHHZaVTdXg', live:true},
+  {id:'ca08', title:'CNN Brasil',     num:'52', emoji:'🌐', sub:'Notícias ao vivo',               yt:'UC5oqD-R7W9Ae5kQEDgvK2QA', live:true},
+  {id:'ca09', title:'GloboNews',      num:'50', emoji:'🗞️', sub:'Notícias Globo 24h',            yt:'UCedBKBZqCFzFdSuDuExFSdg', live:true},
+  {id:'ca10', title:'SBT News',       num:'04', emoji:'📺', sub:'SBT jornalismo',                 yt:'UCb_pDFMHBxFKS2lMDlkFQvg', live:true},
+  // ── Internacionais ───────────────────────────────────────────────
+  {id:'ca11', title:'Al Jazeera',     num:'50', emoji:'🌍', sub:'Notícias mundo — English',      yt:'UCSNeTFelOXmzfqcjxweLDkQ', live:true},
+  {id:'ca12', title:'DW Português',   num:'51', emoji:'🇩🇪', sub:'Deutsche Welle em PT',         yt:'UCkgG6nEqYhMZ4XVNqQXC4eA', live:true},
+  {id:'ca13', title:'France 24 PT',   num:'52', emoji:'🇫🇷', sub:'Notícias em português',        yt:'UCOZaLMTEWQjmeBVV1CnkMSw', live:true},
+  {id:'ca14', title:'Euronews PT',    num:'54', emoji:'🇪🇺', sub:'Europa e mundo em PT',         yt:'UC1hnMCKlYhAqG5bnkJFstNA', live:true},
+  {id:'ca15', title:'TRT World',      num:'57', emoji:'🌐', sub:'Turkey — English News',         yt:'UC7DHio8EZAMoKoYBM6YcOoQ', live:true},
+  // ── Ciência & Cultura ────────────────────────────────────────────
+  {id:'ca16', title:'NASA TV',        num:'60', emoji:'🚀', sub:'Espaço ao vivo — NASA',         yt:'UCLA_DiR1FfKNvjuUpBHmylQ', live:true},
+  {id:'ca17', title:'NHK World',      num:'66', emoji:'🇯🇵', sub:'Japão — English',              yt:'UC6C5_pOLwITKn2c6KPvA1Bw', live:true},
+  {id:'ca18', title:'DW English',     num:'61', emoji:'📡', sub:'Deutsche Welle — English',      yt:'UCknLrEdhRCp1aegoMqRaCZg', live:true},
+  {id:'ca19', title:'Bloomberg',      num:'58', emoji:'📈', sub:'Economia e mercados',           yt:'UCIALMKvObZNtJ6AmdCLP_iQ', live:true},
+  {id:'ca20', title:'CGTN English',   num:'55', emoji:'🇨🇳', sub:'China Global TV Network',      yt:'UCKl7VTOaOD_FEH3CLLW2-7Q', live:true},
+];
+
+// Canais fechados — streams via lista M3U importada
+const CANAIS_FECHADOS = {
+  premium:[
+    {id:'cf01', title:'HBO',           num:'14', emoji:'👑', sub:'Séries e filmes premium',        stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf02', title:'Max',           num:'15', emoji:'⚡', sub:'HBO Max · Originals',            stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf03', title:'Telecine 1',    num:'18', emoji:'🎬', sub:'Cinema de qualidade',            stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf04', title:'Telecine 2',    num:'19', emoji:'🎥', sub:'Lançamentos e clássicos',        stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf05', title:'Globoplay',     num:'16', emoji:'🌐', sub:'Conteúdo Globo exclusivo',       stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf06', title:'Paramount+',    num:'22', emoji:'⛰️', sub:'Séries e filmes Paramount',     stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf07', title:'Disney+',       num:'23', emoji:'🏰', sub:'Disney · Marvel · Star Wars',   stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf08', title:'Star+',         num:'24', emoji:'⭐', sub:'Star · FX · National Geo',      stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf09', title:'Discovery+',    num:'28', emoji:'🔭', sub:'Documentários e natureza',       stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf10', title:'National Geo',  num:'30', emoji:'🌍', sub:'Documentários exclusivos',       stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf11', title:'TNT',           num:'25', emoji:'💥', sub:'Filmes e séries de ação',        stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf12', title:'AXN',           num:'26', emoji:'🎯', sub:'Séries · CSI · The Blacklist',  stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf13', title:'FX',            num:'27', emoji:'🎭', sub:'American Horror · Better Call',  stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf14', title:'Warner',        num:'31', emoji:'🦸', sub:'DC · Batman · Superman',        stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf15', title:'Cinemax',       num:'32', emoji:'🍿', sub:'Cinema 24 horas',                stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cf16', title:'AMC',           num:'33', emoji:'🧟', sub:'Walking Dead · Breaking Bad',   stream:'', live:true, note:'Disponível ao importar lista M3U'},
+  ],
+  esportes:[
+    {id:'ce01', title:'SporTV',        num:'36', emoji:'⚽', sub:'Futebol ao vivo',                stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce02', title:'SporTV 2',      num:'37', emoji:'🏊', sub:'Olímpicos · Automobilismo',     stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce03', title:'SporTV 3',      num:'38', emoji:'🎾', sub:'Tênis · Golfe · Rugby',         stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce04', title:'ESPN',          num:'40', emoji:'🏀', sub:'NBA · NFL · MLB',               stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce05', title:'ESPN 2',        num:'41', emoji:'🏈', sub:'NFL · College Sports',          stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce06', title:'ESPN 3',        num:'42', emoji:'🏒', sub:'NHL · MLS · X Games',           stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce07', title:'ESPN 4',        num:'43', emoji:'⚾', sub:'MLB · Rugby · Críquete',        stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce08', title:'Fox Sports',    num:'44', emoji:'🦊', sub:'Futebol · F1 · UFC',            stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce09', title:'Fox Sports 2',  num:'45', emoji:'🏎️', sub:'Fórmula 1 ao vivo',            stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce10', title:'Combate',       num:'46', emoji:'🥊', sub:'UFC · Boxe · MMA',              stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce11', title:'BandSports',    num:'47', emoji:'🏆', sub:'Esportes variados',              stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce12', title:'DAZN',          num:'48', emoji:'🎮', sub:'Boxe · Football · Luta',        stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ce13', title:'Eurosport',     num:'49', emoji:'🚴', sub:'Ciclismo · Ski · Atletismo',    stream:'', live:true, note:'Disponível ao importar lista M3U'},
+  ],
+  noticias:[
+    {id:'cn01', title:'GloboNews',     num:'50', emoji:'📰', sub:'Notícias 24h — Globo',          stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cn02', title:'CNN Brasil',    num:'52', emoji:'🌐', sub:'Jornalismo ao vivo',             stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cn03', title:'Record News',   num:'53', emoji:'📡', sub:'Notícias Record 24h',            stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cn04', title:'Band News',     num:'55', emoji:'🗞️', sub:'Jornalismo Band ao vivo',       stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cn05', title:'BandTV',        num:'56', emoji:'📺', sub:'Entretenimento e notícias',      stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cn06', title:'CNN Int.',       num:'57', emoji:'🗺️', sub:'CNN Internacional — English', stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'cn07', title:'Bloomberg BR',  num:'58', emoji:'📈', sub:'Economia e finanças',            stream:'', live:true, note:'Disponível ao importar lista M3U'},
+  ],
+  infantil:[
+    {id:'ci01', title:'Cartoon Net.',  num:'60', emoji:'🦸', sub:'Ben 10 · Steven Universe',      stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ci02', title:'Nickelodeon',   num:'61', emoji:'🧽', sub:'Bob Esponja · Patrulha',        stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ci03', title:'Disney Ch.',    num:'62', emoji:'🐭', sub:'Mickey · Princesas · Pixar',    stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ci04', title:'Discovery K.', num:'63', emoji:'🦁', sub:'Animais e natureza kids',       stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ci05', title:'Gloob',         num:'64', emoji:'🎨', sub:'Animações brasileiras',          stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ci06', title:'Boomerang',     num:'65', emoji:'🐰', sub:'Looney Tunes · Scooby-Doo',    stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ci07', title:'Tooncast',      num:'66', emoji:'🎯', sub:'Clássicos animados',             stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ci08', title:'Baby TV',       num:'67', emoji:'👶', sub:'0 a 3 anos — educativo',        stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ci09', title:'Nick Jr.',      num:'68', emoji:'🐾', sub:'Dora · Patrulha Canina',        stream:'', live:true, note:'Disponível ao importar lista M3U'},
+    {id:'ci10', title:'Disney Jr.',    num:'69', emoji:'🧚', sub:'Ursinho Pooh · Bluey',          stream:'', live:true, note:'Disponível ao importar lista M3U'},
+  ],
+};
+
+/* ═══════════════════════════
+   STATE
+═══════════════════════════ */
+let TMDB_KEY       = '6e531b0186d44cd3e20ad530b5d76c8a';
+let currentTab     = 'filmes';
+let heroData       = { filmes: null, series: null };
+let currentItem    = null;
+let lastFocused    = null;
+let hlsInstance    = null;
+let catalogLoaded  = { filmes: false, series: false, abertos: false, fechados: false };
+let currentProvider = 0;
+const $ = id => document.getElementById(id);
+
+/* Provedores de embed para filmes e séries */
+const EMBED_PROVIDERS = [
+  {
+    name: 'VidSrc',
+    movie: id => `https://vidsrc.to/embed/movie/${id}`,
+    tv:   (id,s,e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    name: 'Embed.su',
+    movie: id => `https://embed.su/embed/movie/${id}`,
+    tv:   (id,s,e) => `https://embed.su/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    name: '2Embed',
+    movie: id => `https://www.2embed.cc/embed/${id}`,
+    tv:   (id,s,e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`,
+  },
+  {
+    name: 'SuperEmbed',
+    movie: id => `https://multiembed.mov/?video_id=${id}&tmdb=1`,
+    tv:   (id,s,e) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
+  },
+];
+
+function setProvider(idx) {
+  currentProvider = idx;
+  document.querySelectorAll('.prov-btn').forEach((b,i) => {
+    b.classList.toggle('active', i === idx);
+    b.setAttribute('aria-pressed', i === idx ? 'true' : 'false');
+  });
+  // Se já está assistindo, recarrega com o novo servidor
+  const wrap = $('embed-wrap');
+  if (wrap && wrap.style.display === 'block') {
+    playEmbed();
+  }
+}
+
+/* ═══════════════════════════
+   TMDB API
+═══════════════════════════ */
+async function tmdb(endpoint, params = {}) {
+  const url = new URL(TMDB_BASE + endpoint);
+  url.searchParams.set('api_key', TMDB_KEY);
+  url.searchParams.set('language', LANG);
+  url.searchParams.set('region', 'BR');
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error('TMDB_ERR_' + res.status);
+  return res.json();
+}
+
+function imgUrl(path, size = 'w342') {
+  return path ? IMG_BASE + size + path : '';
+}
+
+/* ═══════════════════════════
+   RENDER HELPERS
+═══════════════════════════ */
+function skeletons(containerId, count = 6, h = 192) {
+  const c = $(containerId);
+  if (!c) return;
+  const f = document.createDocumentFragment();
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'skeleton';
+    d.style.cssText = `flex-shrink:0;width:128px;height:${h}px;border-radius:12px`;
+    f.appendChild(d);
+  }
+  c.innerHTML = '';
+  c.appendChild(f);
+}
+
+function makeMovieCard(item) {
+  const el = document.createElement('article');
+  el.className = 'item-card';
+  el.setAttribute('role', 'listitem');
+  el.setAttribute('tabindex', '0');
+  el.setAttribute('aria-label', item.title || item.name || '');
+  const poster = imgUrl(item.poster_path);
+  const title = item.title || item.name || 'Sem título';
+  const year = (item.release_date || item.first_air_date || '').slice(0,4);
+  const vote = item.vote_average ? item.vote_average.toFixed(1) : '';
+  el.innerHTML = `
+    <div class="item-thumb">
+      ${poster
+        ? `<img src="${poster}" alt="${sanitize(title)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : ''}
+      <div class="emoji-fallback" style="${poster ? 'display:none' : ''}">🎬</div>
+      <div class="item-overlay" aria-hidden="true">
+        <div class="play-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+      </div>
+      ${vote ? `<span class="item-badge badge-hd">⭐${vote}</span>` : ''}
+    </div>
+    <div class="item-name">${sanitize(title)}</div>
+    <div class="item-sub">${sanitize(year)}</div>`;
+  el.addEventListener('click', () => openModal(item));
+  el.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); openModal(item); }});
+  return el;
+}
+
+function makeChannelCard(item) {
+  const el = document.createElement('article');
+  el.className = 'ch-card';
+  el.setAttribute('role', 'listitem');
+  el.setAttribute('tabindex', '0');
+  el.setAttribute('aria-label', `${item.title}${item.live ? ', ao vivo' : ''}`);
+  el.innerHTML = `
+    <div class="ch-thumb">
+      <div class="ch-num" aria-hidden="true">${sanitize(item.num)}</div>
+      <div class="ch-emoji" aria-hidden="true">${item.emoji||'📺'}</div>
+      <div class="ch-name-big" aria-hidden="true">${sanitize(item.title)}</div>
+      ${item.live && (item.stream || item.yt) ? '<div class="ch-live-dot" aria-hidden="true"></div>' : ''}
+    </div>
+    <div class="ch-name">${sanitize(item.title)}</div>
+    <div class="ch-sub">${sanitize(item.sub||'')}</div>`;
+  el.addEventListener('click', () => openModal(item, 'channel'));
+  el.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); openModal(item,'channel'); }});
+  return el;
+}
+
+function appendToGrid(containerId, items, maker) {
+  const c = $(containerId);
+  if (!c) return;
+  const f = document.createDocumentFragment();
+  items.forEach(i => f.appendChild(maker(i)));
+  c.innerHTML = '';
+  c.appendChild(f);
+}
+
+function sanitize(str) {
+  const d = document.createElement('span');
+  d.textContent = String(str || '');
+  return d.innerHTML;
+}
+
+/* ═══════════════════════════
+   LOAD CATALOG
+═══════════════════════════ */
+// Fallback data when no API key
+const FALLBACK_MOVIES = [
+  {id:1,title:'Oppenheimer',poster_path:null,release_date:'2023',vote_average:8.1,overview:'A história do pai da bomba atômica e o Projeto Manhattan.',emoji:'💣'},
+  {id:2,title:'Duna: Parte 2',poster_path:null,release_date:'2024',vote_average:8.3,overview:'Paul Atreides une forças com os Fremen em busca de vingança.',emoji:'🏜️'},
+  {id:3,title:'Alien: Romulus',poster_path:null,release_date:'2024',vote_average:7.3,overview:'Jovens colonizadores se deparam com a criatura mais aterrorizante do universo.',emoji:'👾'},
+  {id:4,title:'Pobres Criaturas',poster_path:null,release_date:'2023',vote_average:7.9,overview:'A história de Bella Baxter, trazida de volta à vida por um cientista excêntrico.',emoji:'🌺'},
+  {id:5,title:'Furiosa',poster_path:null,release_date:'2024',vote_average:7.6,overview:'A origem de Furiosa antes de cruzar o caminho do Immortan Joe.',emoji:'🚗'},
+  {id:6,title:'Wonka',poster_path:null,release_date:'2023',vote_average:7.2,overview:'A origem do mágico Willy Wonka.',emoji:'🍫'},
+];
+const FALLBACK_SERIES = [
+  {id:100,name:'The Last of Us',poster_path:null,first_air_date:'2023',vote_average:8.9,overview:'Joel e Ellie sobrevivem num mundo devastado por uma infecção fúngica.',emoji:'🍄'},
+  {id:101,name:'House of the Dragon',poster_path:null,first_air_date:'2022',vote_average:8.4,overview:'A precuela de Game of Thrones. A história da Casa Targaryen.',emoji:'🐉'},
+  {id:102,name:'Fallout',poster_path:null,first_air_date:'2024',vote_average:8.5,overview:'Moradores de um bunker emergem 200 anos após uma guerra nuclear.',emoji:'☢️'},
+  {id:103,name:'Shogun',poster_path:null,first_air_date:'2024',vote_average:8.6,overview:'Um piloto inglês preso nas guerras de poder dos samurais japoneses.',emoji:'🗡️'},
+  {id:104,name:'The Bear',poster_path:null,first_air_date:'2022',vote_average:8.7,overview:'Carmen Berzatto tenta transformar a lanchonete da família num restaurante premium.',emoji:'🍳'},
+  {id:105,name:'Stranger Things',poster_path:null,first_air_date:'2016',vote_average:8.7,overview:'O grupo de Hawkins enfrenta o maior perigo — Vecna e o Mundo Invertido.',emoji:'🔦'},
+];
+
+async function loadFilmes() {
+  if (catalogLoaded.filmes) return;
+  ['filmes-cartaz','filmes-populares','filmes-top'].forEach(id => skeletons(id));
+  try {
+    if (!TMDB_KEY) throw new Error('NO_KEY');
+    const [cartaz, popular, top] = await Promise.all([
+      tmdb('/movie/now_playing'),
+      tmdb('/movie/popular'),
+      tmdb('/movie/top_rated'),
+    ]);
+    const hero = cartaz.results[0];
+    heroData.filmes = hero;
+    setHero('filmes', hero);
+    appendToGrid('filmes-cartaz',    cartaz.results.slice(0,10),  makeMovieCard);
+    appendToGrid('filmes-populares', popular.results.slice(0,10), makeMovieCard);
+    appendToGrid('filmes-top',       top.results.slice(0,10),     makeMovieCard);
+  } catch {
+    heroData.filmes = FALLBACK_MOVIES[0];
+    setHeroFallback('filmes', FALLBACK_MOVIES[0]);
+    appendToGrid('filmes-cartaz',    FALLBACK_MOVIES, makeMovieCard);
+    appendToGrid('filmes-populares', [...FALLBACK_MOVIES].reverse(), makeMovieCard);
+    appendToGrid('filmes-top',       FALLBACK_MOVIES.slice(0,4),  makeMovieCard);
+  }
+  catalogLoaded.filmes = true;
+}
+
+async function loadSeries() {
+  if (catalogLoaded.series) return;
+  ['series-hoje','series-populares','series-top'].forEach(id => skeletons(id));
+  try {
+    if (!TMDB_KEY) throw new Error('NO_KEY');
+    const [hoje, popular, top] = await Promise.all([
+      tmdb('/tv/airing_today'),
+      tmdb('/tv/popular'),
+      tmdb('/tv/top_rated'),
+    ]);
+    const hero = popular.results[0];
+    heroData.series = hero;
+    setHero('series', hero);
+    appendToGrid('series-hoje',      hoje.results.slice(0,10),    makeMovieCard);
+    appendToGrid('series-populares', popular.results.slice(0,10), makeMovieCard);
+    appendToGrid('series-top',       top.results.slice(0,10),     makeMovieCard);
+  } catch {
+    heroData.series = FALLBACK_SERIES[0];
+    setHeroFallback('series', FALLBACK_SERIES[0]);
+    appendToGrid('series-hoje',      FALLBACK_SERIES, makeMovieCard);
+    appendToGrid('series-populares', [...FALLBACK_SERIES].reverse(), makeMovieCard);
+    appendToGrid('series-top',       FALLBACK_SERIES.slice(0,4),  makeMovieCard);
+  }
+  catalogLoaded.series = true;
+}
+
+function loadCanaisAbertos() {
+  if (catalogLoaded.abertos) return;
+  appendToGrid('canais-abertos', CANAIS_ABERTOS, makeChannelCard);
+  catalogLoaded.abertos = true;
+}
+
+function loadCanaisFechados() {
+  if (catalogLoaded.fechados) return;
+  appendToGrid('canais-fechados-premium', CANAIS_FECHADOS.premium,  makeChannelCard);
+  appendToGrid('canais-fechados-esp',     CANAIS_FECHADOS.esportes, makeChannelCard);
+  appendToGrid('canais-fechados-not',     CANAIS_FECHADOS.noticias, makeChannelCard);
+  appendToGrid('canais-fechados-inf',     CANAIS_FECHADOS.infantil, makeChannelCard);
+  catalogLoaded.fechados = true;
+}
+
+/* ═══════════════════════════
+   HERO
+═══════════════════════════ */
+function setHero(type, item) {
+  const title = item.title || item.name || '';
+  const year  = (item.release_date || item.first_air_date || '').slice(0,4);
+  const vote  = item.vote_average ? '⭐ ' + item.vote_average.toFixed(1) : '';
+  $('hero-'+type+'-title').textContent = title;
+  $('hero-'+type+'-meta').innerHTML = `<span>${year}</span>${vote ? ' · '+vote : ''}`;
+  if (item.backdrop_path) {
+    $('hero-'+type+'-img').style.backgroundImage = `url(${imgUrl(item.backdrop_path,'w780')})`;
+    $('hero-'+type+'-img').style.opacity = '1';
+  }
+}
+function setHeroFallback(type, item) {
+  $('hero-'+type+'-title').textContent = item.title || item.name || '';
+  $('hero-'+type+'-meta').innerHTML = `<span>${(item.release_date||item.first_air_date||'').slice(0,4)}</span>`;
+}
+
+function openHeroModal(type) {
+  if (heroData[type]) openModal(heroData[type]);
+}
+
+/* ═══════════════════════════
+   TABS
+═══════════════════════════ */
+const TABS = ['filmes','series','abertos','fechados','config'];
+const loaders = { filmes:loadFilmes, series:loadSeries, abertos:loadCanaisAbertos, fechados:loadCanaisFechados, config:()=>{ renderPlaylists(); updateStats(); } };
+
+function switchTab(tab) {
+  if (!TABS.includes(tab)) return;
+  currentTab = tab;
+  TABS.forEach(t => {
+    const panel = $('panel-'+t);
+    if (panel) {
+      panel.classList.toggle('active', t === tab);
+      panel.setAttribute('aria-hidden', t !== tab ? 'true' : 'false');
+    }
+    const catBtn = $('tab-'+t);
+    if (catBtn) catBtn.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+  });
+  document.querySelectorAll('.bnav-btn[role="tab"]').forEach(btn => {
+    const match = btn.getAttribute('onclick')?.includes("'"+tab+"'");
+    btn.setAttribute('aria-selected', match ? 'true' : 'false');
+  });
+  const si = $('search-inp');
+  if (si) si.value = '';
+  loaders[tab]?.();
+}
+
+/* ═══════════════════════════
+   SEARCH
+═══════════════════════════ */
+let searchTimer = null;
+async function doSearch(raw) {
+  const q = String(raw).trim();
+  if (!q) return;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(async () => {
+    try {
+      const data = await tmdb('/search/multi', { query: q });
+      const res = data.results?.filter(r => r.media_type !== 'person');
+      if (!res?.length) { showToast('Nenhum resultado para "'+q.slice(0,30)+'"'); return; }
+      openModal(res[0]);
+    } catch { showToast('Erro na busca. Verifique sua chave TMDB.'); }
+  }, 500);
+}
+
+/* ═══════════════════════════
+   MODAL
+═══════════════════════════ */
+function openModal(item, type='media') {
+  currentItem = { ...item, _type: type };
+  lastFocused = document.activeElement;
+
+  const isChannel = type === 'channel';
+  const isSeries  = !isChannel && (!item.title || item.first_air_date);
+
+  $('modal-emoji').textContent = item.emoji || (isChannel ? '📺' : isSeries ? '📺' : '🎬');
+  $('modal-title').textContent = item.title || item.name || '';
+
+  // Meta
+  const parts = [];
+  if (item.release_date)   parts.push(`<span>${item.release_date.slice(0,4)}</span>`);
+  if (item.first_air_date) parts.push(`<span>${item.first_air_date.slice(0,4)}</span>`);
+  if (item.runtime)        parts.push(item.runtime + 'min');
+  if (item.num)            parts.push('Canal ' + sanitize(item.num));
+  if (item.sub)            parts.push(sanitize(item.sub));
+  if (item.note)           parts.push('<em>' + sanitize(item.note) + '</em>');
+  $('modal-meta').innerHTML = parts.join(' · ');
+
+  // Rating
+  if (item.vote_average && item.vote_average > 0) {
+    $('modal-score').textContent = item.vote_average.toFixed(1) + ' / 10';
+    $('modal-rating').removeAttribute('hidden');
+  } else {
+    $('modal-rating').setAttribute('hidden','');
+  }
+
+  // Episode selector — só para séries
+  if (isSeries) {
+    $('ep-selector').removeAttribute('hidden');
+    $('ep-season').value  = 1;
+    $('ep-episode').value = 1;
+  } else {
+    $('ep-selector').setAttribute('hidden','');
+  }
+
+  // Provider buttons — só para filmes e séries (não canais)
+  if (!isChannel && item.id) {
+    $('provider-row').removeAttribute('hidden');
+    currentProvider = 0;
+    document.querySelectorAll('.prov-btn').forEach((b,i) => {
+      b.classList.toggle('active', i === 0);
+      b.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
+    });
+  } else {
+    $('provider-row').setAttribute('hidden','');
+  }
+
+  $('modal-overview').textContent = item.overview || item.desc || 'Conteúdo disponível para reprodução.';
+
+  // Reset player
+  stopPlayer();
+  $('video-placeholder').style.display = 'flex';
+  $('video-player').style.display = 'none';
+
+  if (isChannel && (item.yt || item.stream)) {
+    $('vid-status').textContent = '▶ Clique em "Assistir Agora" para sintonizar ao vivo';
+  } else if (isChannel && !item.yt && !item.stream) {
+    $('vid-status').innerHTML =
+      '🔒 Stream não configurado.<br>' +
+      '<small style="font-size:.7rem;color:rgba(138,122,122,.8)">Importe uma lista M3U na aba ⚙️ Configurações para ativar este canal.</small>';
+  } else if (!isChannel && item.id) {
+    $('vid-status').textContent = '▶ Clique em "Assistir Agora" para reproduzir via embed';
+  } else {
+    $('vid-status').textContent = 'Conteúdo não disponível.';
+  }
+
+  $('modal').removeAttribute('hidden');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.querySelector('.btn-watch')?.focus(), 80);
+}
+
+function closeModal() {
+  stopPlayer();
+  $('modal').setAttribute('hidden','');
+  document.body.style.overflow = '';
+  currentItem = null;
+  lastFocused?.focus();
+}
+
+function handleOverlayClick(e) {
+  if (e.target === e.currentTarget) closeModal();
+}
+
+function stopPlayer() {
+  if (hlsInstance) { try { hlsInstance.destroy(); } catch {} hlsInstance = null; }
+  const vid = $('video-player');
+  try { vid.pause(); vid.src = ''; vid.load(); } catch {}
+  vid.style.display = 'none';
+  // Clear embed iframe
+  const iframe = $('embed-iframe');
+  if (iframe) iframe.src = '';
+  const wrap = $('embed-wrap');
+  if (wrap) wrap.style.display = 'none';
+  // Reset placeholder
+  const ph = $('video-placeholder');
+  if (ph) ph.style.display = 'flex';
+  const st = $('vid-status');
+  if (st) st.textContent = '';
+}
+
+function startPlay() {
+  if (!currentItem) return;
+  const isChannel = currentItem._type === 'channel';
+
+  if (isChannel) {
+    // Canal com YouTube Live
+    if (currentItem.yt) {
+      playYouTubeLive(currentItem.yt);
+      return;
+    }
+    // Canal com stream HLS
+    if (currentItem.stream) {
+      playHLS(currentItem.stream);
+      return;
+    }
+    showToast('⚠️ ' + (currentItem.note || 'Stream não disponível'));
+    return;
+  }
+
+  // Filmes e Séries — embed player
+  if (currentItem.id) {
+    playEmbed();
+  } else {
+    showToast('ID não disponível para reprodução');
+  }
+}
+
+function playYouTubeLive(channelId) {
+  stopPlayer();
+  const wrap    = $('embed-wrap');
+  const iframe  = $('embed-iframe');
+  const loading = $('embed-loading');
+  const ph      = $('video-placeholder');
+  const vid     = $('video-player');
+
+  ph.style.display   = 'none';
+  vid.style.display  = 'none';
+  wrap.style.display = 'block';
+  if (loading) loading.style.display = 'flex';
+
+  iframe.onload  = () => { if (loading) loading.style.display = 'none'; };
+  iframe.onerror = () => { if (loading) loading.style.display = 'none'; };
+
+  // Embed do YouTube Live pelo canal — autoplay
+  iframe.src = `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&rel=0&modestbranding=1`;
+  showToast('📺 Sintonizando canal...');
+}
+
+function playEmbed() {
+  if (!currentItem || !currentItem.id) return;
+
+  const isSeries = !currentItem.title || !!currentItem.first_air_date;
+  const id = currentItem.id;
+  const provider = EMBED_PROVIDERS[currentProvider] || EMBED_PROVIDERS[0];
+
+  let embedUrl;
+  if (isSeries) {
+    const season  = parseInt($('ep-season')?.value  || 1, 10) || 1;
+    const episode = parseInt($('ep-episode')?.value || 1, 10) || 1;
+    embedUrl = provider.tv(id, season, episode);
+  } else {
+    embedUrl = provider.movie(id);
+  }
+
+  stopPlayer();
+
+  const wrap    = $('embed-wrap');
+  const iframe  = $('embed-iframe');
+  const loading = $('embed-loading');
+  const ph      = $('video-placeholder');
+  const vid     = $('video-player');
+
+  ph.style.display   = 'none';
+  vid.style.display  = 'none';
+  wrap.style.display = 'block';
+  if (loading) loading.style.display = 'flex';
+
+  iframe.onload = () => { if (loading) loading.style.display = 'none'; };
+  iframe.onerror = () => {
+    if (loading) loading.style.display = 'none';
+    showToast('❌ Erro no servidor. Tente outro.');
+  };
+
+  iframe.src = embedUrl;
+  showToast('▶ Carregando — ' + (EMBED_PROVIDERS[currentProvider]?.name || 'VidSrc'));
+}
+
+/* ═══════════════════════════
+   HLS PLAYER — CANAIS AO VIVO
+═══════════════════════════ */
+function playHLS(url) {
+  const vid = $('video-player');
+  $('video-placeholder').style.display = 'none';
+  vid.style.display = 'block';
+  stopPlayer();
+
+  const STREAM_PROXIES = [
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}`,
+    u => `https://thingproxy.freeboard.io/fetch/${u}`,
+  ];
+  let proxyIdx = -1;
+
+  function tryNext() {
+    proxyIdx++;
+    if (proxyIdx >= STREAM_PROXIES.length) { showStreamError(url); return; }
+    showToast(`⏳ Proxy ${proxyIdx + 1}/${STREAM_PROXIES.length}...`);
+    loadStream(STREAM_PROXIES[proxyIdx](url));
+  }
+
+  function loadStream(src) {
+    if (hlsInstance) { try { hlsInstance.destroy(); } catch {} hlsInstance = null; }
+
+    if (Hls.isSupported()) {
+      hlsInstance = new Hls({
+        enableWorker: true, lowLatencyMode: true,
+        fragLoadingTimeOut: 12000, manifestLoadingTimeOut: 10000,
+        xhrSetup: xhr => { xhr.withCredentials = false; },
+      });
+      hlsInstance.loadSource(src);
+      hlsInstance.attachMedia(vid);
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => vid.play().catch(() => {}));
+      hlsInstance.on(Hls.Events.ERROR, (_, data) => { if (data.fatal) tryNext(); });
+    } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
+      vid.src = src;
+      vid.onerror = tryNext;
+      vid.oncanplay = () => vid.play().catch(() => {});
+    } else {
+      showStreamError(url);
+    }
+  }
+
+  loadStream(url); // tenta direto primeiro
+}
+
+function showStreamError(url) {
+  if (hlsInstance) { try { hlsInstance.destroy(); } catch {} hlsInstance = null; }
+  const vid = $('video-player');
+  try { vid.pause(); vid.src = ''; vid.load(); } catch {}
+  $('video-placeholder').style.display = 'flex';
+  vid.style.display = 'none';
+  const st = $('vid-status');
+  st.textContent = '';
+  const msg = document.createElement('span');
+  msg.innerHTML = '❌ Não foi possível carregar o canal.<br><small style="color:rgba(138,122,122,.8);font-size:.7rem">O canal pode estar offline ou bloquear acesso externo.</small>';
+  const ext = document.createElement('a');
+  ext.href = url; ext.target = '_blank'; ext.rel = 'noopener noreferrer';
+  ext.textContent = '🔗 Tentar no player externo';
+  ext.style.cssText = 'display:inline-block;margin-top:10px;padding:8px 16px;background:var(--red);color:#fff;border-radius:8px;font-size:.78rem;font-weight:700;text-decoration:none';
+  st.appendChild(msg);
+  st.appendChild(document.createElement('br'));
+  st.appendChild(ext);
+  showToast('❌ Canal indisponível');
+}
+
+
+let toastTimer = null;
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = String(msg).slice(0,80);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ═══════════════════════════
+   AUTH (local, uso pessoal)
+═══════════════════════════ */
+function togglePwd() {
+  const inp = $('password'), btn = $('eye-btn'), ico = $('eye-icon');
+  const showing = inp.type === 'text';
+  inp.type = showing ? 'password' : 'text';
+  btn.setAttribute('aria-pressed', !showing);
+  btn.setAttribute('aria-label', showing ? 'Mostrar senha' : 'Ocultar senha');
+  ico.innerHTML = showing
+    ? '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>'
+    : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-7-10-7a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 7 10 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+}
+
+function showLoginError(msg) {
+  $('alert-msg').textContent = msg;
+  $('alert-box').removeAttribute('hidden');
+  const inner = $('alert-box').querySelector('.alert');
+  if (inner) { inner.style.animation='none'; inner.offsetHeight; inner.style.animation=''; }
+}
+
+function setLoading(on) {
+  $('btn-login').disabled = on;
+  $('btn-text').style.display = on ? 'none' : '';
+  $('spinner').style.display  = on ? 'block' : 'none';
+}
+
+// Called after Firebase confirms login
+window._postLoginSetup = function() {
+  setLoading(false);
+  restorePlaylists();
+  switchTab('filmes');
+  const name = ($('user-name')?.textContent || $('user-avatar')?.textContent || 'Você');
+  showToast('✓ Bem-vindo, ' + name + '!');
+};
+
+async function handleLogin(e) {
+  if (e) e.preventDefault();
+  const email = String($('email').value).trim();
+  const pwd   = String($('password').value);
+  $('alert-box').setAttribute('hidden','');
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showLoginError('E-mail inválido.'); $('email').focus(); return;
+  }
+  if (pwd.length < 6) {
+    showLoginError('Senha deve ter ao menos 6 caracteres.'); $('password').focus(); return;
+  }
+
+  setLoading(true);
+
+  try {
+    const user = await window._localSignIn(email, pwd);
+    const name = user.displayName;
+    const el = $('user-name');
+    if (el) el.textContent = name;
+    $('user-avatar').textContent = name.charAt(0).toUpperCase();
+    $('page-login').classList.remove('active');
+    $('page-dashboard').classList.add('active');
+    window._postLoginSetup?.();
+  } catch (err) {
+    setLoading(false);
+    const msgs = {
+      'auth/user-not-found':    'E-mail não cadastrado.',
+      'auth/wrong-password':    'Senha incorreta.',
+      'auth/invalid-credential':'E-mail ou senha incorretos.',
+      'auth/too-many-requests': 'Muitas tentativas. Aguarde alguns minutos.',
+      'auth/network-request-failed': 'Sem conexão. Verifique sua internet.',
+      'auth/invalid-email':     'E-mail inválido.',
+    };
+    showLoginError(msgs[err.code] || 'E-mail ou senha incorretos.');
+    $('password').value = '';
+    $('password').focus();
+  }
+}
+
+async function doLogout() {
+  stopPlayer();
+  window._localSignOut?.();
+  $('page-dashboard').classList.remove('active');
+  $('page-login').classList.add('active');
+  $('email').value = '';
+  $('password').value = '';
+  $('alert-box').setAttribute('hidden','');
+  setLoading(false);
+  catalogLoaded = { filmes:false, series:false, abertos:false, fechados:false };
+  heroData = { filmes:null, series:null };
+  ['filmes-cartaz','filmes-populares','filmes-top',
+   'series-hoje','series-populares','series-top',
+   'canais-abertos','canais-fechados-premium',
+   'canais-fechados-esp','canais-fechados-not','canais-fechados-inf']
+    .forEach(id => { const el=$(id); if(el) el.innerHTML=''; });
+  $('email').focus();
+}
+
+/* ═══════════════════════════
+   M3U PARSER & SETTINGS
+═══════════════════════════ */
+
+// Storage keys
+const SK_PLAYLISTS = 'sky_playlists';
+
+// In-memory channel store from imported lists
+let importedChannels = [];
+
+/* ── Parse M3U text ── */
+function parseM3U(text) {
+  const lines   = text.replace(/\r/g, '').split('\n');
+  const channels = [];
+  let current   = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    if (line.startsWith('#EXTINF')) {
+      current = {};
+      // Extract duration
+      const durMatch = line.match(/#EXTINF:(-?\d+)/);
+      current.duration = durMatch ? durMatch[1] : '-1';
+      // Extract tvg-name
+      const nameMatch = line.match(/tvg-name="([^"]*)"/);
+      current.title = nameMatch ? nameMatch[1] : '';
+      // Extract group-title
+      const groupMatch = line.match(/group-title="([^"]*)"/);
+      current.group = groupMatch ? groupMatch[1] : 'Sem grupo';
+      // Extract tvg-logo
+      const logoMatch = line.match(/tvg-logo="([^"]*)"/);
+      current.logo = logoMatch ? logoMatch[1] : '';
+      // Extract tvg-id
+      const idMatch = line.match(/tvg-id="([^"]*)"/);
+      current.tvgId = idMatch ? idMatch[1] : '';
+      // Fallback name after comma
+      const commaIdx = line.lastIndexOf(',');
+      if (!current.title && commaIdx !== -1) {
+        current.title = line.slice(commaIdx + 1).trim();
+      }
+    } else if (line.startsWith('#')) {
+      // skip other directives
+    } else if (current) {
+      // This is the stream URL
+      current.stream = line;
+      current.id     = 'imp_' + Math.random().toString(36).slice(2);
+      current.num    = String(channels.length + 1).padStart(2, '0');
+      current.sub    = current.group;
+      current.emoji  = groupEmoji(current.group);
+      current.live   = true;
+      if (current.title && current.stream) {
+        channels.push({ ...current });
+      }
+      current = null;
+    }
+  }
+  return channels;
+}
+
+/* ── Parse JSON playlist ── */
+function parseJSON(text) {
+  const data = JSON.parse(text);
+  const arr  = Array.isArray(data) ? data : (data.channels || data.items || []);
+  return arr.map((c, i) => ({
+    id:     'imp_' + Math.random().toString(36).slice(2),
+    title:  c.name || c.title || c.label || 'Canal ' + (i+1),
+    stream: c.url  || c.stream || c.src || '',
+    group:  c.group || c.category || c.group_title || 'Importado',
+    logo:   c.logo || c.image || c.icon || '',
+    num:    String(i+1).padStart(2,'0'),
+    sub:    c.group || c.category || 'Importado',
+    emoji:  groupEmoji(c.group || ''),
+    live:   true,
+  })).filter(c => c.stream);
+}
+
+/* ── Emoji by group name ── */
+function groupEmoji(group) {
+  const g = (group || '').toLowerCase();
+  if (g.includes('esporte') || g.includes('sport') || g.includes('futebol')) return '⚽';
+  if (g.includes('notícia') || g.includes('news') || g.includes('jornal'))   return '📰';
+  if (g.includes('infantil') || g.includes('kids') || g.includes('criança')) return '🧸';
+  if (g.includes('filme') || g.includes('movie') || g.includes('cinema'))    return '🎬';
+  if (g.includes('série') || g.includes('serie'))                             return '📺';
+  if (g.includes('música') || g.includes('music'))                            return '🎵';
+  if (g.includes('document'))                                                  return '🎥';
+  if (g.includes('adulto') || g.includes('adult') || g.includes('+18'))      return '🔞';
+  return '📡';
+}
+
+/* ── Get saved playlists ── */
+function getPlaylists() {
+  try { return JSON.parse(localStorage.getItem(SK_PLAYLISTS) || '[]'); } catch { return []; }
+}
+
+/* ── Save playlists ── */
+function savePlaylists(lists) {
+  try { localStorage.setItem(SK_PLAYLISTS, JSON.stringify(lists)); } catch {}
+}
+
+/* ── Apply imported channels to panels ── */
+function applyImportedChannels(channels) {
+  importedChannels = channels;
+
+  // Group by group-title
+  const groups = {};
+  channels.forEach(ch => {
+    const g = ch.group || 'Outros';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(ch);
+  });
+
+  // Build sections dynamically in canais-abertos and canais-fechados
+  const abrEl = $('canais-abertos');
+  const fchEl = $('canais-fechados-premium');
+
+  // Categorize groups
+  const open    = ['aberto','abertos','globo','sbt','record','band','cultura','tv brasil','rede'];
+  const sports  = ['esporte','sport','futebol','sportv','espn','combate'];
+  const kids    = ['infantil','kids','criança','cartoon','disney','nick'];
+  const news    = ['notícia','news','jornal','cnn','globonews'];
+
+  let abrChannels = [], fchChannels = [];
+
+  Object.entries(groups).forEach(([grpName, chs]) => {
+    const gl = grpName.toLowerCase();
+    if (open.some(k => gl.includes(k))) {
+      abrChannels.push(...chs);
+    } else {
+      fchChannels.push(...chs);
+    }
+  });
+
+  // If nothing categorized as open, put first 30% in open
+  if (!abrChannels.length && channels.length) {
+    const split = Math.max(1, Math.floor(channels.length * 0.3));
+    abrChannels = channels.slice(0, split);
+    fchChannels = channels.slice(split);
+  }
+
+  if (abrEl && abrChannels.length) {
+    appendToGrid('canais-abertos', abrChannels.slice(0,30), makeChannelCard);
+    catalogLoaded.abertos = true;
+  }
+  if (fchEl && fchChannels.length) {
+    appendToGrid('canais-fechados-premium', fchChannels.slice(0,30), makeChannelCard);
+    const espChs = fchChannels.filter(c => sports.some(k => (c.group||'').toLowerCase().includes(k)));
+    const kidChs = fchChannels.filter(c => kids.some(k =>   (c.group||'').toLowerCase().includes(k)));
+    const newChs = fchChannels.filter(c => news.some(k =>   (c.group||'').toLowerCase().includes(k)));
+    if (espChs.length) appendToGrid('canais-fechados-esp', espChs.slice(0,20), makeChannelCard);
+    if (kidChs.length) appendToGrid('canais-fechados-inf', kidChs.slice(0,20), makeChannelCard);
+    if (newChs.length) appendToGrid('canais-fechados-not', newChs.slice(0,20), makeChannelCard);
+    catalogLoaded.fechados = true;
+  }
+
+  updateStats();
+}
+
+/* ── Update stats boxes ── */
+function updateStats() {
+  const lists = getPlaylists();
+  $('stat-listas').innerHTML = lists.length + '<span></span>';
+  $('stat-canais').innerHTML = importedChannels.length + '<span></span>';
+  const groups = new Set(importedChannels.map(c => c.group));
+  $('stat-grupos').innerHTML = groups.size + '<span></span>';
+}
+
+/* ── Render saved playlists ── */
+function renderPlaylists() {
+  const lists = getPlaylists();
+  const el    = $('playlist-list');
+  if (!el) return;
+  if (!lists.length) {
+    el.innerHTML = '<div style="text-align:center;padding:16px;font-size:.78rem;color:var(--muted)">Nenhuma lista salva ainda.</div>';
+    return;
+  }
+  const f = document.createDocumentFragment();
+  lists.forEach((pl, idx) => {
+    const div = document.createElement('div');
+    div.className = 'playlist-item';
+    div.innerHTML = `
+      <div class="pl-info">
+        <div class="pl-name">${sanitize(pl.name)}</div>
+        <div class="pl-meta">${pl.count} canais · ${pl.type} · ${new Date(pl.ts).toLocaleDateString('pt-BR')}</div>
+      </div>
+      <span class="pl-badge">${sanitize(pl.type)}</span>
+      <button class="btn-del" aria-label="Remover lista ${sanitize(pl.name)}" onclick="removePlaylist(${idx})">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </button>`;
+    div.querySelector('.pl-info').style.cursor = 'pointer';
+    div.querySelector('.pl-info').onclick = () => loadPlaylist(idx);
+    f.appendChild(div);
+  });
+  el.innerHTML = '';
+  el.appendChild(f);
+  updateStats();
+}
+
+/* ── Load a saved playlist ── */
+function loadPlaylist(idx) {
+  const lists = getPlaylists();
+  const pl    = lists[idx];
+  if (!pl || !pl.content) { showToast('Erro ao carregar lista'); return; }
+  try {
+    let channels = [];
+    if (pl.type === 'M3U') channels = parseM3U(pl.content);
+    else if (pl.type === 'JSON') channels = parseJSON(pl.content);
+    applyImportedChannels(channels);
+    showToast('✅ ' + pl.name + ' carregada — ' + channels.length + ' canais');
+    switchTab('abertos');
+  } catch { showToast('❌ Erro ao processar lista'); }
+}
+
+/* ── Remove a playlist ── */
+function removePlaylist(idx) {
+  const lists = getPlaylists();
+  lists.splice(idx, 1);
+  savePlaylists(lists);
+  renderPlaylists();
+  showToast('Lista removida');
+}
+
+/* ── Status helpers ── */
+function setStatus(id, msg, ok) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = msg; // clears all children including old buttons
+  el.className   = 'set-status ' + (ok ? 'ok' : 'err');
+}
+
+/* ── Import from URL ── */
+async function importFromURL() {
+  const url  = String($('m3u-url-inp').value).trim();
+  const name = String($('m3u-url-name').value).trim() || url.split('/').pop().split('?')[0] || 'Lista URL';
+  if (!url) { setStatus('url-status','⚠️ Cole uma URL válida.',false); return; }
+  if (!url.startsWith('http')) { setStatus('url-status','⚠️ A URL deve começar com http:// ou https://',false); return; }
+  setStatus('url-status','⏳ Tentando carregar...', true);
+
+  const text = await fetchWithProxies(url, 'url-status');
+  if (!text) {
+    // Adiciona botão de download direto no celular
+    const el = $('url-status');
+    if (el) {
+      const br = document.createElement('br');
+      const btn = document.createElement('a');
+      btn.href = url;
+      btn.target = '_blank';
+      btn.rel = 'noopener noreferrer';
+      btn.textContent = '📥 Baixar lista no navegador';
+      btn.title = 'Abre a URL para baixar o arquivo e importar manualmente';
+      btn.style.cssText = 'display:inline-block;margin-top:10px;padding:9px 16px;background:var(--red);color:#fff;border-radius:9px;font-size:.78rem;font-weight:700;text-decoration:none;letter-spacing:.04em';
+      el.appendChild(br);
+      el.appendChild(btn);
+    }
+    return;
+  }
+
+  try {
+    let channels = [], type = 'M3U';
+    if (text.trim().startsWith('[') || text.trim().startsWith('{')) {
+      channels = parseJSON(text); type = 'JSON';
+    } else {
+      channels = parseM3U(text);
+    }
+    if (!channels.length) throw new Error('Nenhum canal encontrado na lista');
+    const lists = getPlaylists();
+    lists.push({ name, type, content: text, count: channels.length, url, ts: Date.now() });
+    savePlaylists(lists);
+    applyImportedChannels(channels);
+    renderPlaylists();
+    setStatus('url-status', `✅ ${channels.length} canais importados com sucesso!`, true);
+    $('m3u-url-inp').value  = '';
+    $('m3u-url-name').value = '';
+    showToast('✅ ' + channels.length + ' canais importados!');
+  } catch (err) {
+    setStatus('url-status', '❌ ' + (err.message || 'Erro ao processar lista.'), false);
+  }
+}
+
+/* ── Multi-proxy fetch (tenta vários proxies em sequência) ── */
+const PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+];
+
+async function fetchWithProxies(url, statusId) {
+  // 1. Tentativa direta (funciona se o servidor tem CORS aberto)
+  setStatus(statusId, '⏳ Tentando conexão direta...', true);
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (res.ok) {
+      const text = await res.text();
+      if (text && text.length > 10) return text;
+    }
+  } catch (e) { /* CORS ou timeout — tenta proxies */ }
+
+  // 2. Proxies em sequência
+  for (let i = 0; i < PROXIES.length; i++) {
+    const proxyUrl = PROXIES[i](url);
+    const label = `Proxy ${i+1}/${PROXIES.length}`;
+    setStatus(statusId, `⏳ Tentando ${label}...`, true);
+    try {
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.length > 10) return text;
+      }
+    } catch (e) { /* timeout ou bloqueio — próximo */ }
+  }
+
+  // 3. Tudo falhou — mensagem + botão de download
+  setStatus(statusId,
+    '❌ Todos os proxies falharam. O servidor bloqueia acesso externo.\n' +
+    '💡 Dica: Baixe o arquivo .m3u no seu celular e use "📂 Importar Arquivo" abaixo.',
+    false);
+  return null;
+}
+
+/* ── Test URL ── */
+async function testURL() {
+  const url = String($('m3u-url-inp').value).trim();
+  if (!url) { setStatus('url-status','⚠️ Cole uma URL primeiro.',false); return; }
+  setStatus('url-status','⏳ Testando com conexão direta e proxies...', true);
+  const text = await fetchWithProxies(url, 'url-status');
+  if (!text) {
+    // Adiciona botão de download quando teste falha
+    const el = $('url-status');
+    if (el) {
+      const br = document.createElement('br');
+      const btn = document.createElement('a');
+      btn.href = url;
+      btn.target = '_blank';
+      btn.rel = 'noopener noreferrer';
+      btn.textContent = '📥 Baixar lista no navegador';
+      btn.style.cssText = 'display:inline-block;margin-top:10px;padding:9px 16px;background:var(--red);color:#fff;border-radius:9px;font-size:.78rem;font-weight:700;text-decoration:none;letter-spacing:.04em';
+      el.appendChild(br);
+      el.appendChild(btn);
+    }
+    return;
+  }
+  const lines = text.split('\n').length;
+  const isM3U = text.includes('#EXTINF') || text.includes('#EXTM3U');
+  setStatus('url-status',
+    `✅ URL acessível! ${lines} linhas · ${isM3U ? 'Formato M3U detectado ✓' : 'Formato desconhecido'}`,
+    true);
+}
+
+/* ── Import from pasted text ── */
+function importFromText() {
+  const text = String($('m3u-text-inp').value).trim();
+  const name = String($('m3u-text-name').value).trim() || 'Lista Manual';
+  if (!text) { setStatus('text-status','⚠️ Cole o conteúdo da lista primeiro.',false); return; }
+  try {
+    let channels = [], type = 'M3U';
+    if (text.trim().startsWith('[') || text.trim().startsWith('{')) {
+      channels = parseJSON(text); type = 'JSON';
+    } else if (text.includes('#EXTINF') || text.includes('#EXTM3U')) {
+      channels = parseM3U(text);
+    } else {
+      // Try plain URL list (one URL per line)
+      channels = text.split('\n')
+        .map(l => l.trim()).filter(l => l.startsWith('http'))
+        .map((url, i) => ({
+          id:'imp_'+Math.random().toString(36).slice(2),
+          title:'Canal '+(i+1), stream:url,
+          group:'Importado', num:String(i+1).padStart(2,'0'),
+          sub:'Importado', emoji:'📡', live:true,
+        }));
+      type = 'URL';
+    }
+    if (!channels.length) throw new Error('Nenhum canal encontrado. Verifique o formato.');
+    const lists = getPlaylists();
+    lists.push({ name, type, content: text, count: channels.length, ts: Date.now() });
+    savePlaylists(lists);
+    applyImportedChannels(channels);
+    renderPlaylists();
+    setStatus('text-status', `✅ ${channels.length} canais importados de "${name}"!`, true);
+    $('m3u-text-inp').value  = '';
+    $('m3u-text-name').value = '';
+    showToast('✅ ' + channels.length + ' canais importados!');
+  } catch (err) {
+    setStatus('text-status', '❌ ' + (err.message || 'Erro ao processar lista.'), false);
+  }
+}
+
+function clearTextArea() {
+  $('m3u-text-inp').value = '';
+  $('m3u-text-name').value = '';
+  $('text-status').className = 'set-status';
+}
+
+/* ── Import from file (celular) ── */
+function importFromFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const name = String($('file-name-inp').value).trim() || file.name.replace(/\.[^.]+$/, '') || 'Arquivo';
+  setStatus('file-status', '⏳ Lendo arquivo...', true);
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    try {
+      let channels = [], type = 'M3U';
+      if (text.trim().startsWith('[') || text.trim().startsWith('{')) {
+        channels = parseJSON(text); type = 'JSON';
+      } else if (text.includes('#EXTINF') || text.includes('#EXTM3U')) {
+        channels = parseM3U(text); type = 'M3U';
+      } else {
+        // plain URL list
+        channels = text.split('\n')
+          .map(l => l.trim()).filter(l => l.startsWith('http'))
+          .map((url, i) => ({
+            id:'imp_'+Math.random().toString(36).slice(2),
+            title:'Canal '+(i+1), stream:url,
+            group:'Importado', num:String(i+1).padStart(2,'0'),
+            sub:'Importado', emoji:'📡', live:true,
+          }));
+        type = 'URL';
+      }
+      if (!channels.length) throw new Error('Nenhum canal encontrado no arquivo');
+
+      const lists = getPlaylists();
+      lists.push({ name, type, content: text, count: channels.length, ts: Date.now() });
+      savePlaylists(lists);
+      applyImportedChannels(channels);
+      renderPlaylists();
+      setStatus('file-status', `✅ ${channels.length} canais importados de "${file.name}"!`, true);
+      $('file-name-inp').value = '';
+      input.value = '';
+      // Update drop zone
+      const area = $('file-upload-area');
+      if (area) {
+        area.querySelector('.file-upload-ico').textContent = '✅';
+        area.querySelector('.file-upload-txt').textContent = channels.length + ' canais carregados';
+        area.querySelector('.file-upload-sub').textContent = file.name;
+        setTimeout(() => {
+          area.querySelector('.file-upload-ico').textContent = '📁';
+          area.querySelector('.file-upload-txt').textContent = 'Toque para selecionar arquivo';
+          area.querySelector('.file-upload-sub').textContent = 'M3U · M3U8 · TXT · JSON';
+        }, 3000);
+      }
+      showToast('✅ ' + channels.length + ' canais importados!');
+    } catch(err) {
+      setStatus('file-status', '❌ ' + (err.message || 'Erro ao ler arquivo'), false);
+    }
+  };
+  reader.onerror = () => setStatus('file-status','❌ Erro ao ler o arquivo.',false);
+  reader.readAsText(file, 'UTF-8');
+}
+
+/* ── Reset all ── */
+function resetAll() {
+  if (!confirm('Apagar todas as listas e configurações?')) return;
+  try { localStorage.removeItem(SK_PLAYLISTS); } catch {}
+  importedChannels = [];
+  catalogLoaded = { filmes:false, series:false, abertos:false, fechados:false };
+  ['canais-abertos','canais-fechados-premium',
+   'canais-fechados-esp','canais-fechados-not','canais-fechados-inf']
+    .forEach(id => { const el=$(id); if(el) el.innerHTML=''; });
+  renderPlaylists();
+  updateStats();
+  showToast('✅ Dados apagados com sucesso');
+}
+
+/* ── Auto-restore playlists on login ── */
+function restorePlaylists() {
+  const lists = getPlaylists();
+  if (!lists.length) return;
+  // Load the most recent playlist
+  const last = lists[lists.length - 1];
+  if (last?.content) {
+    try {
+      let channels = [];
+      if (last.type === 'JSON') channels = parseJSON(last.content);
+      else channels = parseM3U(last.content);
+      if (channels.length) applyImportedChannels(channels);
+    } catch {}
+  }
+  renderPlaylists();
+}
+// Bloqueia todos os popups/anúncios de iframes de embed
+(function blockAds() {
+  window.open = function() { return null; };
+  window.addEventListener('beforeunload', e => {
+    const wrap = document.getElementById('embed-wrap');
+    if (wrap && wrap.style.display === 'block') {
+      e.preventDefault(); e.returnValue = '';
+    }
+  });
+})();
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('modal').hasAttribute('hidden')) closeModal();
+});
+
+</script>
+</body>
+</html>
